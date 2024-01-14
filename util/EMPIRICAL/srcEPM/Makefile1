@@ -1,0 +1,44 @@
+FC = ifort
+
+MODULE = test_epm
+
+OBJS = $(MODULE).o \
+	EPM_Interface.o \
+	EPM_Initialization.o\
+	EPM_util.o\
+	ModSPHARM.o\
+	EPM_Ualibrary.o \
+	epm.o
+
+FFLAGS =  -O2 -I/opt/local/include
+LDFLAGS = -L/usr/lib
+
+$(MODULE): $(OBJS)
+	$(FC) $(FFLAGS) -o $@ $(OBJS)
+
+
+EPM_Interface.o: EPM_Interface.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+EPM_Initialization.o: EPM_Initialization.f90 EPM_Interface.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+EPM_util.o: EPM_util.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+ModSPHARM.o: ModSPHARM.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+EPM_Ualibrary.o: EPM_Ualibrary.f90 ModSPHARM.o EPM_Interface.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+epm.o: epm.f90 EPM_Interface.o EPM_Initialization.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@ 
+
+
+$(MODULE).o: $(MODULE).f90 epm.o \
+	EPM_Interface.o EPM_Initialization.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@ 
+
+clean:
+	rm -rf *~ *.o *.mod $(MODULE) *.out

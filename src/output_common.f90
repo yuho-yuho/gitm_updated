@@ -227,7 +227,14 @@ subroutine output(dir, iBlock, iOutputType)
 
   case ('3DALL')
 
-     nvars_to_write = 13+nSpeciesTotal+nSpecies+nIons
+     nvars_to_write = 13+nSpeciesTotal+nSpecies+nIons &
+          +5 & ! (ZigP, ZigH, EnergyFlux, Average Energy, Joule heating)
+          +5 & ! (EPot, EField Vector, Efield magintude) 
+          +2 & ! (dEd1, dEd2)
+          +2 & ! (Gedy_pot, Gedy_fac)
+          +3 & ! (Gedy_FAC1, Gedy_dFAC, Gedy_pot1)
+          +3 & ! (ExB drift)
+          +2 + 1 ! (TEC, int-JH, Jwd)
      call output_3dall(iBlock)
 
   case ('3DNEU')
@@ -286,7 +293,13 @@ subroutine output(dir, iBlock, iOutputType)
   case ('1DALL')
 
      nGCs = 0
-     nvars_to_write = 13+nSpeciesTotal+nSpecies+nIons+nSpecies+5
+
+     ! qingyu 02/07/2021
+     ! 1D outputs are not correct for the last 10 parameters 
+     ! changed to 2 parameters 
+     ! including : total_ef, avg_E +2
+     ! including : ExB(up) +3 (06/16/2021)
+     nvars_to_write = 13+nSpeciesTotal+nSpecies+nIons+3 !nSpecies+5
      call output_1dall(iiLon, iiLat, iBlock, rLon, rLat, iOutputUnit_)
 
   case ('1DGLO')
@@ -566,6 +579,56 @@ contains
 
        if (cType(3:5) == "ALL") then
 
+          ! qingyu, 02/07/2020
+          ! Treat 1D output seperately from 3D output
+
+          if (cType(1:2) == "1D") then
+             
+          write(iOutputUnit_,"(I7,A1,a)") iOff+1, " ", "Energyflux"       
+          write(iOutputUnit_,"(I7,A1,a)") iOff+2, " ", "ElectronAverageEnergy"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+3, " ", "ExB(up)" 
+
+          else
+          ! qingyu
+          write(iOutputUnit_,"(I7,A1,a)") iOff+1, " ", "PedersenConductance"   
+          write(iOutputUnit_,"(I7,A1,a)") iOff+2, " ", "HallConductance"       
+          write(iOutputUnit_,"(I7,A1,a)") iOff+3, " ", "Energyflux"            
+          write(iOutputUnit_,"(I7,A1,a)") iOff+4, " ", "ElectronAverageEnergy"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+5, " ", "Joule heating" 
+
+          iOff = iOff + 5
+
+          ! qingyu
+          write(iOutputUnit_,"(I7,A1,a)") iOff+1, " ", "Potential"             
+          write(iOutputUnit_,"(I7,A1,a)") iOff+2, " ", "E.F. East"             
+          write(iOutputUnit_,"(I7,A1,a)") iOff+3, " ", "E.F. North"            
+          write(iOutputUnit_,"(I7,A1,a)") iOff+4, " ", "E.F. Vertical"         
+          write(iOutputUnit_,"(I7,A1,a)") iOff+5, " ", "E.F. Magnitude"
+
+          iOff = iOff + 5
+          
+          ! qingyu
+          write(iOutputUnit_,"(I7,A1,a)") iOff+1, " ", "dEd1" 
+          write(iOutputUnit_,"(I7,A1,a)") iOff+2, " ", "dEd2"
+          
+          ! qingyu, 11/24/2020
+          iOff = iOff +2
+          write(iOutputUnit_,"(I7,A1,a)") iOff+1, " ", "Gedy_pot"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+2, " ", "Gedy_fac"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+3, " ", "Gedy_fac1"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+4, " ", "Gedy_dfac"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+5, " ", "Gedy_pot1"
+
+          iOff = iOff + 5
+          write(iOutputUnit_,"(I7,A1,a)") iOff+1, " ", "ExB (East)"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+2, " ", "ExB (North)"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+3, " ", "ExB (Up)"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+4, " ", "TEC"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+5, " ", "Int-JH"
+          write(iOutputUnit_,"(I7,A1,a)") iOff+6, " ", "Jwd"
+
+          !
+          iOff = iOff + 6
           write(iOutputUnit_,"(I7,A1,a)") iOff+1, " ", "N2 Mixing Ratio"
           write(iOutputUnit_,"(I7,A1,a)") iOff+2, " ", "CH4 Mixing Ratio"
           write(iOutputUnit_,"(I7,A1,a)") iOff+3, " ", "Ar Mixing Ratio"
@@ -581,6 +644,8 @@ contains
           write(iOutputUnit_,"(I7,A1,a)") iOff+3, " ", "Conduction"
           write(iOutputUnit_,"(I7,A1,a)") iOff+4, " ", "Heat Balance Total"
           write(iOutputUnit_,"(I7,A1,a)") iOff+5, " ", "Heaing Efficiency"
+          
+          end if ! if (cType(1:2) == "1D")
 
        else
 
@@ -837,6 +902,9 @@ subroutine output_3dall(iBlock)
   use ModGITM
   use ModInputs
 
+  use ModElectrodynamics, only: HallConductance, PedersenConductance
+  use ModSources, only: JouleHeating
+
   implicit none
 
   integer, intent(in) :: iBlock
@@ -863,7 +931,33 @@ subroutine output_3dall(iBlock)
                 (IDensityS(iLon,iLat,iAlt,i,iBlock),i=1,nIons), &
                 eTemperature(iLon,iLat,iAlt,iBlock)  ,&
                 ITemperature(iLon,iLat,iAlt,iBlock)  ,&
-                (Ivelocity(iLon,iLat,iAlt,i,iBlock),i=1,3)
+                (Ivelocity(iLon,iLat,iAlt,i,iBlock),i=1,3), &
+                ! qingyu
+                PedersenConductance(iLon,iLat,iBlock),&                        
+                HallConductance(iLon,iLat,iBlock),&                            
+                ElectronEnergyFlux(iLon,iLat),&                                
+                ElectronAverageEnergy(iLon,iLat),&
+                JouleHeating(iiLon,iiLat,iiAlt)*TempUnit(iiLon,iiLat,iiAlt)*&
+                cp(iiLon,iiLat,iiAlt,iBlock)*Rho(iLon,iLat,iAlt,iBlock), &
+                ! qingyu
+                potential(iLon,iLat,iAlt,iBlock), &         
+                EField(iLon,iLat,iAlt,:), &  ! EField(Lon,lat,alt,3)     
+                sqrt(sum(EField(iLon,iLat,iAlt,:)**2)), &  ! magnitude of E.F.
+                ! qingyu
+                dEd1_gitm(iLon,iLat,iAlt), &
+                dEd2_gitm(iLon,iLat,iAlt), &
+                ! qingyu, 11/24/2020
+                Gedy_pot(iLon,iLat,iAlt), &
+                Gedy_fac(iLon,iLat,iAlt), &
+                Gedy_fac1(iLon,iLat,iAlt), &
+                Gedy_dfac(iLon,iLat,iAlt), &
+                Gedy_pot1(iLon,iLat,iAlt), &
+                ! qingyu, 01/26/2021
+                ExB(iLon,iLat,iAlt,:), &
+                scTEC(iiLon,iiLat), &
+                HeightIntegratedJH(iiLon,iiLat), &
+                Gedy_jwd(iLon,iLat,iAlt)
+
         enddo
      enddo
   enddo
@@ -1283,14 +1377,17 @@ subroutine output_1dall(iiLon, iiLat, iBlock, rLon, rLat, iUnit)
   use ModGITM
   use ModEUV, only: HeatingEfficiency_CB
   use ModSources, only: JouleHeating, RadCooling, EuvHeating, Conduction
-                        
+
+ 
   use ModInputs, only: iOutputUnit_
   implicit none
 
   integer, intent(in) :: iiLat, iiLon, iBlock, iUnit
   real, intent(in)    :: rLon, rLat
 
-  integer, parameter :: nVars = 13+nSpeciesTotal+nSpecies+nIons+nSpecies+5
+  ! qingyu, 02/07/2021
+  integer, parameter :: nVars = 13+nSpeciesTotal+nSpecies+nIons+3 !nSpecies+5
+
   real :: Vars(nVars)
   real :: Tmp(0:nLons+1,0:nLats+1)
   integer :: iAlt, iiAlt, iOff, iIon, iSpecies, iDir
@@ -1364,27 +1461,43 @@ subroutine output_1dall(iiLon, iiLat, iBlock, rLon, rLat, iUnit)
         Tmp = IVelocity(0:nLons+1,0:nLats+1,iAlt,iUp_,iBlock)
         Vars(iOff) = inter(Tmp,iiLon,iiLat,rlon,rlat)
 
-        do iSpecies = 1, nSpecies
-           Tmp = NDensityS(0:nLons+1,0:nLats+1,iAlt,iSpecies,iBlock)/NDensity(0:nLons+1,0:nLats+1,iAlt,iBlock)
-           Vars(iOff+iSpecies) = inter(Tmp,iiLon,iiLat,rlon,rlat)
-        enddo
+        ! qingyu, 02/07/2021
+        iOff = iOff + 1
+        Tmp = ElectronEnergyFlux(0:nLons+1,0:nLats+1)
+        Vars(iOff) = inter(Tmp,iiLon,iiLat,rlon,rlat)
+
+        iOff = iOff + 1
+        Tmp = ElectronAverageEnergy(0:nLons+1,0:nLats+1)
+        Vars(iOff) = inter(Tmp,iiLon,iiLat,rlon,rlat)
+
+        iOff = iOff + 1
+        Tmp = ExB(0:nLons+1,0:nLats+1,iAlt,iUp_)
+        Vars(iOff) = inter(Tmp,iiLon,iiLat,rlon,rlat)
+
+
+        !!!! Not what we need
+
+!        do iSpecies = 1, nSpecies
+!           Tmp = NDensityS(0:nLons+1,0:nLats+1,iAlt,iSpecies,iBlock)/NDensity(0:nLons+1,0:nLats+1,iAlt,iBlock)
+!           Vars(iOff+iSpecies) = inter(Tmp,iiLon,iiLat,rlon,rlat)
+!        enddo
 
 !        iOff = iOff + 1
 !        Tmp = NDensityS(0:nLons+1,0:nLats+1,iAlt,iSpecies,iBlock)/NDensity(0:nLons+1,0:nLats+1,iAlt,iBlock)
 !        Vars(iOff+iSpecies) = inter(Tmp,iiLon,iiLat,rlon,rlat)
 
-        iOff = iOff + nSpecies
-        Vars(iOff+1) = Dt*RadCooling(1,1,iiAlt,iBlock)*TempUnit(1,1,iiAlt)
+!        iOff = iOff + nSpecies
+!        Vars(iOff+1) = Dt*RadCooling(1,1,iiAlt,iBlock)*TempUnit(1,1,iiAlt)
 
-        Vars(iOff+2) = Dt*EuvHeating(1,1,iiAlt,iBlock)*TempUnit(1,1,iiAlt)
+!        Vars(iOff+2) = Dt*EuvHeating(1,1,iiAlt,iBlock)*TempUnit(1,1,iiAlt)
 
-        Vars(iOff+3) = Conduction(1,1,iiAlt)*TempUnit(1,1,iiAlt)
+!        Vars(iOff+3) = Conduction(1,1,iiAlt)*TempUnit(1,1,iiAlt)
 
-        Vars(iOff+4) = Dt*EuvHeating(1,1,iiAlt,iBlock)*TempUnit(1,1,iiAlt) - &
-         Dt*RadCooling(1,1,iiAlt,iBlock)*TempUnit(1,1,iiAlt) + &
-         Conduction(1,1,iiAlt)*TempUnit(1,1,iiAlt)
+!        Vars(iOff+4) = Dt*EuvHeating(1,1,iiAlt,iBlock)*TempUnit(1,1,iiAlt) - &
+!         Dt*RadCooling(1,1,iiAlt,iBlock)*TempUnit(1,1,iiAlt) + &
+!         Conduction(1,1,iiAlt)*TempUnit(1,1,iiAlt)
 
-        Vars(iOff+5) = HeatingEfficiency_CB(1,1,iiAlt,iBlock)
+!        Vars(iOff+5) = HeatingEfficiency_CB(1,1,iiAlt,iBlock)
 
      write(iOutputUnit_) Vars
 

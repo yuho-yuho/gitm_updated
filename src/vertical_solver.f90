@@ -119,7 +119,10 @@ subroutine advance_vertical_1stage( &
 
   real, dimension(1:nAlts,nSpecies)    :: GradLogNS, DiffLogNS, &
        GradVertVel, DiffVertVel, DivVertVel
-  real, dimension(1:nAlts,nIonsAdvect) :: GradLogINS, DiffLogINS
+  real, dimension(1:nAlts,nIonsAdvect) :: GradLogINS, DiffLogINS, &
+       ! Add terms for the ion continuity equation 
+       ! qingyu, 03/02/2020
+       GradVertIVel, DiffVertIVel, DivVertIVel
   real :: NewSumRho, NewLogSumRho, rat, ed
 
   integer :: iAlt, iSpecies, jSpecies, iDim
@@ -188,6 +191,15 @@ subroutine advance_vertical_1stage( &
      call calc_rusanov_alts(LogINS(:,iSpecies), GradTmp, DiffTmp)
      GradLogINS(:,iSpecies) = GradTmp
      DiffLogINS(:,iSpecies) = DiffTmp
+
+  ! Calculate the divergence of the Vi
+  ! qingyu, 03/02/2020
+  call calc_rusanov_alts(IVel(:,3), GradTmp, DiffTmp)
+     GradVertIVel(:,iSpecies) = GradTmp
+     DiffVertIVel(:,iSpecies) = DiffTmp
+     DivVertIVel(:,iSpecies) = GradVertIVel(:,iSpecies) + &
+          2*IVel(1:nAlts,3)*InvRadialDistance_C
+
   enddo
 
 
@@ -209,7 +221,10 @@ subroutine advance_vertical_1stage( &
 
      do iSpecies=1,nIonsAdvect
         NewLogINS(iAlt,iSpecies) = NewLogINS(iAlt,iSpecies) - Dt * &
-             (IVel(iAlt,iUp_) * GradLogINS(iAlt,iSpecies) ) &
+             ! Add div vi in the ion countinuity equation 
+             ! qingyu, 03/02/2020
+             (DivVertIVel(iAlt,iSpecies)+ &
+             IVel(iAlt,iUp_) * GradLogINS(iAlt,iSpecies)) &
              + Dt * DiffLogINS(iAlt,iSpecies)
      enddo
 
@@ -253,7 +268,9 @@ subroutine advance_vertical_1stage( &
 
         if (UseCoriolis) then
            NewVertVel(iAlt,ispecies) = NewVertVel(iAlt,ispecies) + Dt * ( &
-                Centrifugal / InvRadialDistance_C(iAlt) + &
+                ! Remove the centrifugal force 
+                ! qingyu, 03/02/2020
+                Centrifugal *0. / InvRadialDistance_C(iAlt) + &
                 Coriolis * Vel_GD(iAlt,iEast_))
         endif
 

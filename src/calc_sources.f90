@@ -51,6 +51,8 @@ subroutine calc_GITM_sources(iBlock)
   call calc_eddy_diffusion_coefficient(iBlock)  
   call calc_rates(iBlock)
   call calc_collisions(iBlock)
+  ! Update the ion-neutral collisions, qingyu, 03/02/2020
+  call calc_new_collisions(iBlock)
 
   RhoI = IDensityS(1:nLons,1:nLats,1:nAlts,ie_,iBlock) * &
        MeanIonMass(1:nLons,1:nLats,1:nAlts)
@@ -206,7 +208,16 @@ subroutine calc_GITM_sources(iBlock)
 
   if (UseJouleHeating .and. UseIonDrag) then
 
-     tmp = Collisions(1:nLons,1:nLats,1:nAlts,iVIN_) * &
+     ! Cissi changed the calculation slightly to better compare with 
+     ! the formula used in GITM paper. However, the results calculated 
+     ! from her revised formula may not change the results significantly
+     ! since the fomula used here are good approximations of those 
+     ! listed in GITM paper, so this part remains unchanged except
+     ! changing all Collisions to Collisions1
+     ! - qingyu, 03/03/2020
+     
+
+     tmp = Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_) * &
           RhoI(1:nLons,1:nLats,1:nAlts)/ &
           Rho(1:nLons,1:nLats,1:nAlts,iBlock) 
 
@@ -217,6 +228,7 @@ subroutine calc_GITM_sources(iBlock)
      !     (MeanIonMass(1:nLons,1:nLats,1:nAlts)/AMU) /  &
      !     (MeanIonMass(1:nLons,1:nLats,1:nAlts)/AMU + &
      !     MeanMajorMass(1:nLons,1:nLats,1:nAlts)/AMU)
+
 
      JouleHeating = 0.0
 
@@ -369,7 +381,7 @@ subroutine calc_GITM_sources(iBlock)
 
   if (UseIonDrag) then
 
-     tmp = Collisions(1:nLons,1:nLats,1:nAlts,iVIN_)*&
+     tmp = Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_)*&
           RhoI/Rho(1:nLons,1:nLats,1:nAlts,iBlock)
 
      do iDir = 1, 3
@@ -382,7 +394,7 @@ subroutine calc_GITM_sources(iBlock)
      ! where Vis = Vin *(Ns/N)  
 
      do iSpecies = 1, nSpecies
-        tmp = Collisions(1:nLons,1:nLats,1:nAlts,iVIN_)*&
+        tmp = Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_)*&
              RhoI / &
              (Mass(iSpecies) * &
              NDensityS(1:nLons,1:nLats,1:nAlts,iSpecies,iBlock)) * &
@@ -459,7 +471,23 @@ subroutine calc_GITM_sources(iBlock)
 
   ! The Emissions array was never set. Should this be here or earlier ????
   Emissions(:,:,:,:,iBlock) = 0.0
-  call calc_chemistry(iBlock)
+
+  ! ---------------------------------------------------------------------------
+  ! Add additional chemistry scheme option created by Cissi Lin.
+  ! Details can be found in her 2018 paper.
+  !
+  ! Slightly different than her orignal code: only update N2A when using her
+  ! chemistry module, if the default one is used, N2A would not be updated
+  !
+  ! qingyu, 03/03/2020
+
+  if (UseNewNOChemistry) then
+     if (UseN2AProfiles) call update_n2a(iBlock)
+     call calc_chemistry_new(iBlock)
+  else
+     call calc_chemistry(iBlock)
+  end if
+  ! ---------------------------------------------------------------------------
 
   ChemicalHeatingRate(:,:,:) = &
        ChemicalHeatingRate(:,:,:) * Element_Charge / &

@@ -1,0 +1,11 @@
+EPM_Initialization.o:\
+	EPM_Interface.o
+
+EPM_Ualibrary.o:\
+	ModSPHARM.o \
+	EPM_Interface.o
+
+epm.o:\
+	EPM_Interface.o \
+	EPM_Initialization.o
+

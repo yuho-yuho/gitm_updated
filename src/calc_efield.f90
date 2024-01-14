@@ -20,6 +20,9 @@ subroutine calc_efield(iBlock)
 
   maxi = 0.0
 
+  if (useGedy .and. ( .not. Gedy_useEfield)) &                                
+       Potential(:,:,:,iBlock)=Gedy_pot(:,:,:)
+
   !!! This is only first order accurate for stretched grids ???
   do k=1,nAlts
      do i=1,nLats
@@ -54,6 +57,19 @@ subroutine calc_efield(iBlock)
         enddo
      enddo
   enddo
+
+  !! ADD GEDY ELECTRIC FIELD
+  ! qingyu, 10/15/2020
+  ! qingyu, 11/24/2020, Efield*0
+  if (useGedy .and. Gedy_useEfield) Efield=Efield*0.+Gedy_Efield
+
+  !! ADD ELECTRIC FIELD VARIABILITY
+  ! qingyu, 08/18/2020
+  if (UseEFVM) then
+     call construct_defield(d1_dir,d2_dir,iBlock)
+     Efield(:,:,:,:) = Efield(:,:,:,:) + dEfield(:,:,:,:)
+  end if
+
 
   ExB(:,:,:,iEast_)  =    EField(:,:,:,iNorth_) * B0(:,:,:,iUp_,iBlock)    - &
                           EField(:,:,:,iUp_)    * B0(:,:,:,iNorth_,iBlock)

@@ -38,6 +38,13 @@ subroutine exchange_messages_sphere
         Velocity(:,-1:0,:,iEast_,iBlock) = &
              -Velocity(:,-1:0,:,iEast_,iBlock)
 
+        ! Add the counterparts of the ion velocity
+        ! qingyu, 03/02/2020
+        IVelocity(:,-1:0,:,iNorth_,iBlock) = &
+             -IVelocity(:,-1:0,:,iNorth_,iBlock)
+        IVelocity(:,-1:0,:,iEast_,iBlock) = &
+             -IVelocity(:,-1:0,:,iEast_,iBlock)
+
      endif
 
      if (Latitude(nLats+1,iBlock) > pi/2.0) then
@@ -47,6 +54,13 @@ subroutine exchange_messages_sphere
 
         Velocity(:,nLats+1:nLats+2,:,iEast_,iBlock) = &
              -Velocity(:,nLats+1:nLats+2,:,iEast_,iBlock)
+
+        ! Add the counterparts of the ion velocity                             
+        ! qingyu, 03/02/2020 
+        IVelocity(:,nLats+1:nLats+2,:,iNorth_,iBlock) = &
+             -IVelocity(:,nLats+1:nLats+2,:,iNorth_,iBlock)
+        IVelocity(:,nLats+1:nLats+2,:,iEast_,iBlock) = &
+             -IVelocity(:,nLats+1:nLats+2,:,iEast_,iBlock)
 
      endif
 

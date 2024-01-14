@@ -60,7 +60,8 @@ subroutine init_b0
               B0(iLon,iLat,iAlt,iMag_,iBlock)   = &
                    sqrt(xmag*xmag + ymag*ymag + zmag*zmag)
 
-              if(UseDynamo)then
+              ! qingyu, 03/02/2020, comment the if block
+              !if(UseDynamo)then
                  b0_d1(iLon,iLat,iAlt,:,iBlock) = d1
                  b0_d2(iLon,iLat,iAlt,:,iBlock) = d2
                  b0_d3(iLon,iLat,iAlt,:,iBlock) = d3
@@ -70,7 +71,7 @@ subroutine init_b0
                  b0_cD(iLon,iLat,iAlt,iBlock)   = cD
                  b0_Be3(iLon,iLat,iAlt,iBlock)  = &
                       B0(iLon,iLat,iAlt,iMag_,iBlock)/cD
-              end if
+              !end if
 
               if (B0(iLon,iLat,iAlt,iMag_,iBlock) == 0.0) then
                  B0(iLon,iLat,iAlt,iMag_,iBlock) = 1.0e-10
@@ -225,6 +226,11 @@ subroutine get_magfield_all(GeoLat,GeoLon,GeoAlt,alat,alon,xmag,ymag,zmag, &
      d1(iNorth_) = londiff/twodegrees
      d2(iNorth_) = (alatp - alatm)/twodegrees
 
+     ! Correct d2 at low latitudes, otherwise discontinuity appears
+     ! qingyu, 03/02/2020
+     if ((abs(alat)<25.) .and. (alatp*alatm<=0.)) &
+          d2(iNorth_) = abs(abs(alatp) - abs(alatm))/twodegrees
+
      ! Longitudinal component
      call APEX(DATE,GeoLat,mod(GeoLon+1,360.0),GeoAlt,LShell, &
           alatp,alonp,bmag,xmag,ymag,zmag,MagPot)
@@ -246,6 +252,12 @@ subroutine get_magfield_all(GeoLat,GeoLon,GeoAlt,alat,alon,xmag,ymag,zmag, &
      
      d1(iEast_) = (londiff)/(twodegrees * cos(GeoLat*pi/180.0))
      d2(iEast_) = (alatp - alatm)/(twodegrees * cos(GeoLat*pi/180.0))
+
+     ! Correct d2 at low latitudes, otherwise discontinuity appears
+     ! qingyu, 03/02/2020
+     if ((abs(alat)<25.) .and. (alatp*alatm<=0.)) &
+          d2(iEast_) = abs(abs(alatp) - abs(alatm))/&
+          (twodegrees * cos(GeoLat*pi/180.0))
 
      ! Altitude component
      call APEX(DATE,GeoLat,GeoLon,GeoAlt+1,LShell, &

@@ -1,0 +1,44 @@
+FC = ifort
+
+MODULE = test_aepm
+
+OBJS = $(MODULE).o \
+	AEPM_Interface.o \
+	AEPM_Initialization.o\
+	AEPM_util_base.o\
+	AEPM_util.o\
+	AEPM_Ualibrary.o \
+	aepm.o
+
+FFLAGS =  -O2 -I/opt/local/include
+LDFLAGS = -L/usr/lib
+
+$(MODULE): $(OBJS)
+	$(FC) $(FFLAGS) -o $@ $(OBJS)
+
+
+AEPM_Interface.o: AEPM_Interface.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+AEPM_Initialization.o: AEPM_Initialization.f90 AEPM_Interface.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+AEPM_util_base.o: AEPM_util_base.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+AEPM_util.o: AEPM_util.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+AEPM_Ualibrary.o: AEPM_Ualibrary.f90 AEPM_Interface.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+aepm.o: aepm.f90 AEPM_Interface.o AEPM_Initialization.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@ 
+
+
+$(MODULE).o: $(MODULE).f90 aepm.o \
+	AEPM_Interface.o AEPM_Initialization.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@ 
+
+clean:
+	rm -rf *~ *.o *.mod $(MODULE) *.out

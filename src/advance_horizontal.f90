@@ -157,10 +157,15 @@ contains
          DiffLonRho_C, DiffLatRho_C
     real, dimension(nLons,nLats)          :: &
          GradLonTemp_C, GradLatTemp_C, &
-         DiffLonTemp_C, DiffLatTemp_C, DivVel_C
+         DiffLonTemp_C, DiffLatTemp_C, DivVel_C, &
+         DivIVel_C ! qingyu zhu, 03/02/2020 (div Vi)
     real, dimension(nLons,nLats,3)        :: &
          GradLonVel_CD, GradLatVel_CD, &
-         DiffLonVel_CD, DiffLatVel_CD
+         DiffLonVel_CD, DiffLatVel_CD, &
+         ! Add terms for the ion continuity equation
+         ! qingyu, 03/02/2020
+         GradLonIVel_CD, GradLatIVel_CD, &
+         DiffLonIVel_CD, DiffLatIVel_CD
     real, dimension(nLons,nLats,nSpecies) :: &
          GradLonVertVel_CV, GradLatVertVel_CV, &
          DiffLonVertVel_CV, DiffLatVertVel_CV
@@ -241,6 +246,29 @@ contains
             GradLatINum_CV(:,:,iSpc), DiffLatINum_CV(:,:,iSpc))
     end do
 
+    ! -------------------------------------------------------------------------
+    ! Calculation of the divergence of the ion velocity 
+    ! qingyu zhu, 03/02/2020
+
+    do iDim = 1,3
+       if(UseTopography) dVarDAlt_C = HalfInvDAlt_C * &
+            ( IVelocity(1:nLons,1:nLats,iAlt+1,iDim,iBlock) &
+            - IVelocity(1:nLons,1:nLats,iAlt-1,iDim,iBlock) )
+       call calc_rusanov_lons(IVel_CD(:,:,iDim), &
+            GradLonIVel_CD(:,:,iDim), DiffLonIVel_CD(:,:,iDim))
+       call calc_rusanov_lats(IVel_CD(:,:,iDim), &
+            GradLatIVel_CD(:,:,iDim), DiffLatIVel_CD(:,:,iDim))
+    end do
+
+    do iLat = 1, nLats
+       DivIVel_C(:,iLat) = &
+            GradLatIVel_CD(:,iLat,iNorth_) + GradLonIVel_CD(:,iLat,iEast_) &
+                - TanLatitude(iLat,iBlock) * IVel_CD(1:nLons,iLat,iNorth_) * &
+            InvRadialDistance_GB(1:nLons,iLat,iAlt,iBlock)
+    end do
+
+    ! -------------------------------------------------------------------------
+
     SinLat = sin(Latitude(1:nLats,iBlock))
     CosLat = CosLatitude(1:nLats,iBlock)
 
@@ -249,8 +277,10 @@ contains
        CoriolisSin = SinLat(iLat) * 2 * OmegaBody
        CoriolisCos = CosLat(iLat) * 2 * OmegaBody
 
+       ! Remove the centrifugal force by multiplying a factor of 0
+       ! qingyu zhu, 03/02/2020
        CentrifugalParameter = OmegaBody**2 * cosLat(iLat) * &
-            sinLat(iLat)
+            sinLat(iLat)*0.
 
        do iLon=1,nLons
 
@@ -276,7 +306,9 @@ contains
 
           do iSpc = 1, nIonsAdvect
              NewINum_CV(iLon,iLat,iSpc) = NewINum_CV(iLon,iLat,iSpc) - Dt * ( &
-!                  INum_CV(iLon,iLat,iSpc) * DivVel_C(iLon,iLat) &
+                  ! Uncomment the line below
+                  ! qingyu zhu, 03/02/2020
+                  INum_CV(iLon,iLat,iSpc) * DivIVel_C(iLon,iLat) &
                   + GradLatINum_CV(iLon,iLat,iSpc)*IVel_CD(iLon,iLat,iNorth_) &
                   + GradLonINum_CV(iLon,iLat,iSpc)*IVel_CD(iLon,iLat,iEast_)) &
                   + Dt * (&

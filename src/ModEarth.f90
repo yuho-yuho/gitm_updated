@@ -1,3 +1,5 @@
+! Revised version by Cissi Lin                                               
+! Added in this GITM by qingyu, 03/03/2020
 
 module ModPlanet
 
@@ -13,13 +15,14 @@ module ModPlanet
   integer, parameter :: iN_4S_ =  4
   integer, parameter :: iNO_   =  5
 
-  integer, parameter :: nSpeciesTotal = 11
+  integer, parameter :: nSpeciesTotal = 12
   integer, parameter :: iN_2D_ =  6
   integer, parameter :: iN_2P_ =  7
   integer, parameter :: iH_    =  8
   integer, parameter :: iHe_   =  9
   integer, parameter :: iAr_   = 10
   integer, parameter :: iO_1D_ = 11
+  integer, parameter :: iN2_A_ = 12
 
   integer, parameter  :: iO_4SP_ = 1
   integer, parameter  :: iO2P_   = 2
@@ -50,8 +53,7 @@ module ModPlanet
   integer, parameter :: iE6300_ = 6
   integer, parameter :: iE6364_ = 7
   
-  integer, parameter :: nEmissions = 10
-  
+  integer, parameter :: nEmissions = 12
   integer, parameter :: i3371_ = 1
   integer, parameter :: i4278_ = 2
   integer, parameter :: i5200_ = 3
@@ -63,6 +65,7 @@ module ModPlanet
   integer, parameter :: i7774_ = 9
   integer, parameter :: i8446_ = 10
   integer, parameter :: i3726_ = 11
+  integer, parameter :: i5300_ = 12
 
   real, parameter :: GC_Earth               = 9.8                    ! m/s^2
   real, parameter :: RP_Earth               = 24.0*3600.0            ! seconds
@@ -223,6 +226,7 @@ contains
     Mass(iN2_)   = 2*Mass(iN_4S_)
     Mass(iO2_)   = 2*Mass(iO_3P_)
     Mass(iNO_)   = Mass(iN_4S_)+Mass(iO_3P_)
+    Mass(iN2_A_) = Mass(iN2_)
 
     cSpecies(iH_)    = "H"
     cSpecies(iHe_)   = "He"
@@ -235,6 +239,7 @@ contains
     cSpecies(iNO_)   = "NO"
     cSpecies(iO_1D_) = "O(!U1!ND)"
     cSpecies(iAr_)   = "Ar"
+    cSpecies(iN2_A_) = "N2(A)"
 
     cIons(iO_4SP_) = "O_4SP_!U+!N"
     cIons(iO2P_)   = "O!D2!U+!N"

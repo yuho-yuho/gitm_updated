@@ -234,6 +234,7 @@ subroutine UA_GetNonGridBasedPotential(PotentialOut, iError)
   integer :: iMLT, iLat
 
   real    :: Potential, ETheta, EPhi, MLT, Lat, tilt, hr
+  real    :: lat1 ! qingyu, 10/15/2020
 
   iError = 0
 
@@ -326,6 +327,9 @@ subroutine UA_GetNonGridBasedPotential(PotentialOut, iError)
         MLT = UAr2_NeedMLTs(iMLT,iLat)
         Lat = UAr2_NeedLats(iMLT,iLat)
 
+        ! qingyu, 10/15/2020
+        lat1 = lat
+
         if (UAl_IsNorth) then
            if (Lat > 0.0) then
               iHemisphere = 1
@@ -342,9 +346,18 @@ subroutine UA_GetNonGridBasedPotential(PotentialOut, iError)
            if (abs(lat) >= 45.0) then 
               hr = float(iHour) + float(iMinute)/60.0
               tilt = get_tilt (iYear,iMonth,iDay,hr)
-              call setmodel(IOr_NeedIMFBy,IOr_NeedIMFBz,tilt, &
-                   IOr_NeedSWV,IOr_NeedSWN,'epot')
-              call epotval(lat,mlt,0.0,Potential)
+
+              ! Mirror correction of the IMF By
+              if (lat1>0) then
+                 call setmodel(IOr_NeedIMFBy,IOr_NeedIMFBz,tilt, &
+                      IOr_NeedSWV,IOr_NeedSWN,'epot')
+                 call epotval(lat,mlt,0.0,Potential)
+              else
+                 call setmodel(-IOr_NeedIMFBy,IOr_NeedIMFBz,-tilt, &           
+                      IOr_NeedSWV,IOr_NeedSWN,'epot')                          
+                 call epotval(lat,mlt,0.0,Potential)                       
+              end if 
+
               Potential = Potential * 1000.0
               iChange = 0
            else
@@ -609,3 +622,101 @@ subroutine UA_GetValue(ValueIn, ValueOut, Filler, iError)
 
 end subroutine UA_GetValue
   
+! -----------------------------------------------------------------------------
+! New routine to get the 2D potential distribution in the geomagnetic 
+! coordinate.
+! 
+! Created: Qingyu Zhu, 07/28/2017, qingyu.zhu@mavs.uta.edu
+!
+! Set up a MLON-MLAT grid, then get the MLT for each MLON, finally obtain the 
+! potential
+!
+! - qingyu, 03/02/2020
+! -----------------------------------------------------------------------------
+
+subroutine UA_gedy_get2Dpoten(nmlt,nmlat,mltin,mlatin,potout)
+
+  ! Global
+  use EIE_ModWeimer, only: WeiEpot96, get_tilt
+  use w05sc, only: setmodel, epotval
+
+  use ModEIE_Interface
+  use ModErrors
+  use ModTimeConvert, ONLY: time_real_to_int
+
+  implicit none
+
+  ! Local
+  integer, intent(in) :: nmlt, nmlat
+  real, intent(in) :: mltin(nmlt), mlatin(nmlat)
+  real, intent(out):: potout(nmlt,nmlat)
+
+  integer :: imlt, imlat
+  integer, dimension(7) :: itime
+  integer :: iYear, iMonth, iDay, iHour, iMinute, iSecond
+  integer :: iChange, iHemisphere
+  real :: mlat, mlt, tilt, hr
+  real :: mlat1 ! qingyu, 10/15/2020
+
+  call time_real_to_int(IOd_NeedTime, itime)
+
+  iYear   = itime(1)
+  iMonth  = itime(2)
+  iDay    = itime(3)
+  iHour   = itime(4)
+  iMinute = itime(5)
+  iSecond = itime(6)
+
+  do imlt = 1,nmlt
+     do imlat = 1,nmlat
+
+        if (imlat == 1) then
+           iChange = 1
+        else
+           if (mlatin(imlat)*mlatin(imlat-1) <= 0.0) &
+                iChange = 1
+        endif
+
+        mlt=mltin(imlt)
+        mlat=mlatin(imlat)
+        mlat1=mlat
+
+        if (UAl_IsNorth) then
+           if (mlat > 0.0) then
+              iHemisphere = 1
+           else
+              mlat = abs(mlat)
+              iHemisphere = -1
+           endif
+        else
+           iHemisphere = -1
+           if (mlat < 0.0) mlat = abs(mlat)
+        endif
+
+        if (index(EIE_NameOfEFieldModel,'weimer05') > 0) then
+           if (abs(mlat) >= 45.0) then
+              hr = float(iHour) + float(iMinute)/60.0
+              tilt = get_tilt (iYear,iMonth,iDay,hr)
+
+              if (mlat1>=0) then
+                 call setmodel(IOr_NeedIMFBy,IOr_NeedIMFBz,tilt, &
+                      IOr_NeedSWV,IOr_NeedSWN,'epot')
+                 call epotval(mlat,mlt,0.0,potout(imlt,imlat))
+              else
+                 call setmodel(-IOr_NeedIMFBy,IOr_NeedIMFBz,-tilt, &  
+                      IOr_NeedSWV,IOr_NeedSWN,'epot')                          
+                 call epotval(mlat,mlt,0.0,potout(imlt,imlat))
+              end if
+
+              potout(imlt,imlat) = potout(imlt,imlat) * 1000.0
+              iChange = 0
+           else
+              potout(imlt,imlat) = 0.0
+           endif
+        endif
+
+     enddo
+  enddo
+
+
+end subroutine UA_gedy_get2Dpoten

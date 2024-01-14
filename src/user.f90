@@ -137,7 +137,7 @@ subroutine set_nVarsUser3d
 
   ! Make sure to include Lat, Lon, and Alt
 
-  nVarsUser3d = 4
+  nVarsUser3d = 6
 
   if (nVarsUser3d-3 > nUserOutputs) &
        call stop_gitm("Too many user outputs!! Increase nUserOutputs!!")
@@ -155,7 +155,8 @@ subroutine set_nVarsUser2d
 
   ! Make sure to include Lat, Lon, and Alt
 
-  nVarsUser2d = 10+ED_N_Energies
+  !nVarsUser2d = 10+ED_N_Energies
+  nVarsUser2d = 3 + 4 + 4 + 3 ! Neutral wind
 
   if (nVarsUser2d-3 > nUserOutputs) &
        call stop_gitm("Too many user outputs!! Increase nUserOutputs!!")
@@ -212,7 +213,9 @@ subroutine output_header_user(cType, iOutputUnit_)
      write(iOutputUnit_,"(I7,A1,a)")  1, " ", "Longitude"
      write(iOutputUnit_,"(I7,A1,a)")  2, " ", "Latitude"
      write(iOutputUnit_,"(I7,A1,a)")  3, " ", "Altitude"
-     write(iOutputUnit_,"(I7,A1,a)")  4, " ", "Joule Heating"
+     write(iOutputUnit_,"(I7,A1,a)")  4, " ", "Eden"
+     write(iOutputUnit_,"(I7,A1,a)")  5, " ", "Wi(up)" 
+     write(iOutputUnit_,"(I7,A1,a)")  6, " ", "ExB(up)" 
 
   endif
 
@@ -236,16 +239,31 @@ subroutine output_header_user(cType, iOutputUnit_)
      write(iOutputUnit_,"(I7,A1,a)")  1, " ", "Longitude"
      write(iOutputUnit_,"(I7,A1,a)")  2, " ", "Latitude"
      write(iOutputUnit_,"(I7,A1,a)")  3, " ", "Altitude"
-     write(iOutputUnit_,"(I7,A1,a)")  4, " ", "Potential (kV)"
-     write(iOutputUnit_,"(I7,A1,a)")  5, " ", "Average Energy (keV)"
-     write(iOutputUnit_,"(I7,A1,a)")  6, " ", "Total Energy (ergs)"
-     write(iOutputUnit_,"(I7,A1,a)")  7, " ", "Discrete Average Energy (keV)"
-     write(iOutputUnit_,"(I7,A1,a)")  8, " ", "Discrete Total Energy (ergs)"
-     write(iOutputUnit_,"(I7,A1,a)")  9, " ", "Wave Average Energy (keV)"
-     write(iOutputUnit_,"(I7,A1,a)") 10, " ", "Wave Total Energy (ergs)"
-     do n=1,ED_N_Energies
-        write(iOutputUnit_,"(I7,A6,1P,E9.3,A11)") 10+n, " Flux@",ED_energies(n), "eV (/cm2/s)"
-     enddo
+
+     write(iOutputUnit_,"(I7,A1,a)")  4, " ", "EFlux"
+     write(iOutputUnit_,"(I7,A1,a)")  5, " ", "Potential"
+     write(iOutputUnit_,"(I7,A1,a)")  6, " ", "TEC"
+     write(iOutputUnit_,"(I7,A1,a)")  7, " ", "intJH"
+
+     write(iOutputUnit_,"(I7,A1,a)")  8, " ", "Vi(East)"
+     write(iOutputUnit_,"(I7,A1,a)")  9, " ", "Vi(North)"
+     write(iOutputUnit_,"(I7,A1,a)")  10, " ", "Vi(Up)"  
+     write(iOutputUnit_,"(I7,A1,a)")  11, " ", "Vn(East)"
+     write(iOutputUnit_,"(I7,A1,a)")  12, " ", "Vn(North)"
+     
+     write(iOutputUnit_,"(I7,A1,a)")  13, " ", "O_N2"
+     write(iOutputUnit_,"(I7,A1,a)")  14, " ", "Vi(Up_all)"
+
+     !write(iOutputUnit_,"(I7,A1,a)")  4, " ", "Potential (kV)"
+     !write(iOutputUnit_,"(I7,A1,a)")  5, " ", "Average Energy (keV)"
+     !write(iOutputUnit_,"(I7,A1,a)")  6, " ", "Total Energy (ergs)"
+     !write(iOutputUnit_,"(I7,A1,a)")  7, " ", "Discrete Average Energy (keV)"
+     !write(iOutputUnit_,"(I7,A1,a)")  8, " ", "Discrete Total Energy (ergs)"
+     !write(iOutputUnit_,"(I7,A1,a)")  9, " ", "Wave Average Energy (keV)"
+     !write(iOutputUnit_,"(I7,A1,a)") 10, " ", "Wave Total Energy (ergs)"
+     !do n=1,ED_N_Energies
+     !   write(iOutputUnit_,"(I7,A6,1P,E9.3,A11)") 10+n, " Flux@",ED_energies(n), "eV (/cm2/s)"
+     !enddo
   endif
 
   write(iOutputUnit_,*) ""
@@ -273,7 +291,10 @@ subroutine output_3dUser(iBlock, iOutputUnit_)
                 Longitude(iLon,iBlock), &
                 Latitude(iLat,iBlock), &
                 Altitude_GB(iLon, iLat, iAlt, iBlock),&
-                UserData3D(iLon,iLat,iAlt,1:nVarsUser3d-3,iBlock)
+                !UserData3D(iLon,iLat,iAlt,1:nVarsUser3d-3,iBlock)
+                IDensityS(iLon,iLat,iAlt,10,iBlock), &
+                Ivelocity(iLon,iLat,iAlt,3,iBlock), &
+                ExB(iLon,iLat,iAlt,3)
         enddo
      enddo
   enddo
@@ -292,16 +313,32 @@ subroutine output_2dUser(iBlock, iOutputUnit_)
   implicit none
 
   integer, intent(in) :: iBlock, iOutputUnit_
-  integer :: iAlt, iLat, iLon
+  integer :: iAlt, iLat, iLon, i
+  
+  real :: alts_in(nAlts)
 
-  iAlt = 1
+  !iAlt = 12
+
   do iLat=1,nLats
      do iLon=1,nLons
+
+        alts_in = Altitude_GB(iLon,iLat,1:nAlts,iBlock)
+        iAlt = minloc(abs(alts_in-250000.),dim=1) ! Change to 250 km
+
         write(iOutputUnit_)       &
              Longitude(iLon,iBlock), &
              Latitude(iLat,iBlock), &
              Altitude_GB(iLon, iLat, iAlt, iBlock),&
-             UserData2D(iLon,iLat,iAlt,1:nVarsUser2d-3,iBlock)
+             ElectronEnergyFlux(iLon,iLat),& ! Energy flux
+             Gedy_pot(iLon, iLat, iAlt),& ! potential
+             scTEC(iLon,iLat), & ! TEC
+             HeightIntegratedJH(iLon,iLat), & ! Height-integrated Joule heating
+             (Ivelocity(iLon,iLat,iAlt,i,iBlock),i=1,2), & ! Vi
+             ExB(iLon,iLat,iAlt,3), & ! ExB up
+             (Velocity(iLon,iLat,iAlt,i,iBlock),i=1,2), & ! Vn
+             on2ratio(iLon,iLat), & ! O/N2 ratio
+             Ivelocity(iLon,iLat,iAlt,3,iBlock) ! Vi up
+        
      enddo
   enddo
 
@@ -329,6 +366,7 @@ subroutine output_1dUser(iBlock, iOutputUnit_)
              Latitude(iLat,iBlock), &
              Altitude_GB(iLon, iLat, iAlt, iBlock),&
              UserData2D(iLon,iLat,iAlt,1:nVarsUser2d-3,iBlock)
+             
      enddo
   enddo
 

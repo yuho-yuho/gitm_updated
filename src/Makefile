@@ -2,7 +2,9 @@ ABDIR   = ${UADIR}/srcSphereAB
 IODIR   = ${DATAREADINDICESDIR}
 GLDIR   = ${UADIR}/srcGlow
 
-SEARCH_EXTRA = -I${ABDIR} -I${IODIR} -I${EMPIRICALUADIR} -I${EMPIRICALIEDIR}
+SEARCH_EXTRA = -I${ABDIR} -I${IODIR} -I${EMPIRICALUADIR} -I${EMPIRICALIEDIR} \
+	-I${EDYNAMICSDIR} -I${EMPIRICALAEPMDIR} -I${EMPIRICALEPMDIR} \
+	-I${EMPIRICALEFVMDIR}
 
 include ../srcMake/Makefile.conf
 
@@ -30,14 +32,24 @@ MODULES = \
 	ModMagTrace.o\
 	ModChemistry.o\
 	ModGITMImplicit.o\
+	ModUser.o\
 	ModHwm.o\
-	ModUser.o
+	ModGedy.o\
+	ModNOChemistry.o\
+	ModAMPERE.o\
+	ModOIM.o\
+	ModAMIE.o\
+	ModSDAM.o\
+	ModSDFM.o
 
 OBJECTS = \
 	planet.o\
 	satellites.o\
 	calc_electron_temperature.o\
+	run_aepm.o\
 	aurora.o\
+	run_epm.o\
+	run_efvm.o\
 	get_potential.o\
 	calc_efield.o\
 	set_inputs.o\
@@ -89,7 +101,23 @@ OBJECTS = \
 	write_output.o\
 	gradient.o\
 	tides.o\
-	user.o
+	user.o\
+	update_hwm_bcs.o\
+	calc_new_collisions.o\
+	gedy_gatherfield.o\
+	advance_gedy.o\
+	gedy_get2dpoten.o\
+	gedy_mapfield.o\
+	gedy_spreadfield_new.o\
+	update_n2a.o\
+	calc_chemistry_new.o\
+	calc_height_integral.o\
+	sub_elecmono.o\
+	get_ampere_fac.o\
+	get_oim_fac.o\
+	run_amie.o\
+	get_sdam_aurora.o\
+	get_sdfm_fac.o\
 
 OBJECTS_EXE = main.o ${OBJECTS} ${MODULES}
 
@@ -111,7 +139,8 @@ GITM_general:
 	${LINK.f90} -o ${EXE} ${OBJECTS_EXE} \
 		-L${ABDIR} -lSphere \
 		-L${LIBDIR} -lEMPIRICALIE -lEMPIRICALUA -lINDICES -lSHARE \
-		-L${GLDIR} -lGLOW ${LBLAS} ${Lflag1}
+		-lEDYNAMICS -lAEPM -lEPM -lEFVM \
+		-L${GLDIR} -lGLOW ${LBLAS} ${Lflag1} -mkl
 
 GITM_for_Darwin:
 	rm -rf Tmp_; mkdir Tmp_

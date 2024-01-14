@@ -1,8 +1,13 @@
+! Revised version by Cissi Lin
+! Added in this GITM by qingyu, 03/03/2020
 
 subroutine fill_photo(photoion, photoabs, photodis)
 
   use ModPlanet
   use ModEUV
+  use ModNOChemistry
+  use ModTime, only: CurrentTime
+  use ModIndicesInterfaces, only: get_HPI
 
   implicit none
 
@@ -10,7 +15,8 @@ subroutine fill_photo(photoion, photoabs, photodis)
   real, intent(out) :: photoabs(Num_WaveLengths_High, nSpecies)
   real, intent(out) :: photodis(Num_WaveLengths_High, nSpecies)
 
-  integer :: iSpecies, iWave
+  integer :: iSpecies, iWave, iError
+  real    :: Hp
 
   PhotoAbs = 0.0
   PhotoIon = 0.0
@@ -21,11 +27,33 @@ subroutine fill_photo(photoion, photoabs, photodis)
 
   if (nSpecies > 2) then
      iSpecies = iN2_
+
+     ! if TCIPS
+     if (UseTCIParameterizationS) then
+         if (ScalingEUVAbsRate .eq. 1.0) then
+             call get_HPI(CurrentTime, HP, iError)
+              ScalingEUVAbsRate = 1.0 / (1.50137e-2 * (hp - 4.67) + 2.91889)
+          endif
+          PhotoAbs_N2 = ScalingEuvAbsRate * PhotoAbs_N2
+     endif
      photoabs(:,iSpecies)    = PhotoAbs_N2
+
   endif
+
   if (nSpecies > 3) then
      iSpecies = iN_4S_
      photoabs(:,min(iSpecies,nSpecies))    = PhotoIon_N
+  endif
+
+
+  ! if TCIP
+  if (UseTCIParameterizationS) then
+      if (ScalingEUVIonRate .eq. 1.0) then
+          call get_HPI(CurrentTime, HP, iError)
+          ScalingEUVIonRate = 1.0 / (1.50137e-2 * (hp - 4.67) + 2.91889)
+      endif
+      PhotoIon_N2 = ScalingEuvIonRate * PhotoIon_N2
+
   endif
 
   ! This may need to be as defined below....
@@ -61,6 +89,7 @@ subroutine calc_planet_sources(iBlock)
   use ModSources
   use ModGITM
   use ModTime
+  use ModNOChemistry
   
   implicit none
 
@@ -91,6 +120,7 @@ subroutine calc_planet_sources(iBlock)
 
      ! We need to check this out. I don't like the first / sign....
 
+     ! in [W m^-3] - C Lin
      NOCooling = Planck_Constant * Speed_Light / &
           5.3e-6 * &
           Omega * 13.3 *  &
@@ -100,6 +130,7 @@ subroutine calc_planet_sources(iBlock)
           TempUnit(1:nLons,1:nLats,1:nAlts))) * &
           NDensityS(1:nLons,1:nLats,1:nAlts,iNO_,iBlock)
 
+     ! in [K/s / (unit of TempUnit)] - C Lin
      NOCooling = NOCooling / TempUnit(1:nLons,1:nLats,1:nAlts) / &
           (Rho(1:nLons,1:nLats,1:nAlts,iBlock)*cp(:,:,1:nAlts,iBlock))
 
@@ -140,6 +171,7 @@ subroutine calc_planet_sources(iBlock)
 
   endif
 
+  ! in [K/s] - C Lin
   RadCooling(1:nLons,1:nLats,1:nAlts,iBlock) = OCooling + NOCooling
 
 

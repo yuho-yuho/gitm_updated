@@ -1,0 +1,9 @@
+EFVM_Initialization.o:\
+	EFVM_Interface.o
+
+EFVM_Ualibrary.o:\
+	EFVM_Interface.o
+
+EFVM.o:\
+	EFVM_Initialization.o
+

@@ -1,0 +1,110 @@
+calc_efield.o:\
+	fieldline_p.o \
+	fieldline_s.o \
+	params.o
+
+areas.o:\
+	params.o
+
+remap_wt.o:\
+	params.o \
+	qd_grid.o \
+	areas.o
+
+grid.o:\
+	params.o
+
+fieldline_p.o:\
+	params.o
+
+fieldline_s.o:\
+	params.o \
+	fieldline_p.o
+
+calc_B.o:\
+	params.o \
+	qd_grid.o
+
+fieldline_r.o:\
+	params.o
+
+qd_grid.o:\
+	params.o
+
+calc_Iqd.o:\
+	params.o \
+	qd_grid.o \
+	fieldline_s.o \
+	fieldline_r.o \
+	fieldline_p.o
+
+get_apex.o:\
+	fieldline_s.o \
+	fieldline_r.o \
+	fieldline_p.o \
+	qd_grid.o \
+	params.o \
+	apex.o \
+	calc_B.o
+
+calc_I.o:\
+	fieldline_s.o \
+	fieldline_p.o \
+	fieldline_r.o \
+	params.o
+
+calc_J.o:\
+	fieldline_s.o \
+	fieldline_p.o \
+	fieldline_r.o \
+	params.o
+
+calc_Jpg.o:\
+	fieldline_s.o \
+	params.o
+
+calc_S1approx.o:\
+	fieldline_s.o \
+	fieldline_r.o \
+	params.o
+
+calc_MN_S1S2.o:\
+	fieldline_s.o \
+	fieldline_r.o \
+	fieldline_p.o \
+	areas.o \
+	params.o
+
+calc_je_s1s2.o:\
+	fieldline_s.o \
+	params.o
+
+calc_S.o:\
+	fieldline_s.o \
+	fieldline_p.o \
+	fieldline_r.o \
+	params.o
+
+readin.o:\
+	params.o
+
+calc_coef.o:\
+	params.o \
+	fieldline_s.o \
+	fieldline_p.o \
+	readin.o
+
+ModFAC.o:\
+	params.o \
+	calc_coef.o \
+	fieldline_p.o \
+	fieldline_s.o
+
+edynamicsout.o:\
+	params.o \
+	qd_grid.o \
+	fieldline_s.o \
+	fieldline_r.o \
+	fieldline_p.o \
+	calc_B.o
+

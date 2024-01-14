@@ -5,6 +5,9 @@ include Makefile.def
 
 ABDIR   = srcSphereAB
 EIEDIR  = ${EMPIRICALIEDIR}
+AEPMDIR = ${EMPIRICALAEPMDIR}
+EPMDIR = ${EMPIRICALEPMDIR}
+EFVMDIR = ${EMPIRICALEFVMDIR}
 EUADIR  = ${EMPIRICALUADIR}
 IODIR   = ${DATAREADINDICESDIR}
 MAINDIR = src
@@ -35,9 +38,13 @@ GITM:
 	@cd ${SHAREDIR}; make LIB
 	@cd $(ABDIR);    make LIB
 	@cd $(EIEDIR);   make LIB
+	@cd $(AEPMDIR);  make LIB 
+	@cd $(EPMDIR);   make LIB
+	@cd $(EFVMDIR);  make LIB
 	@cd ${EUADIR};   make LIB
 	@cd $(IODIR);    make LIB
 	@cd $(GLDIR);	 make LIB
+	@cd $(EDYNAMICSDIR); make LIB 
 	@cd $(MAINDIR);  make GITM
 
 POST:
@@ -60,6 +67,7 @@ clean:
 	@cd $(ABDIR);    make clean
 	@cd $(MAINDIR);  make clean
 	@cd $(GLDIR);    make clean
+	@cd ${EDYNAMICSDIR}; make clean
 	@cd srcInterface;make clean
 	@(if [ -d share ]; then cd share; make clean; fi);
 	@(if [ -d util ];  then cd util;  make clean; fi);

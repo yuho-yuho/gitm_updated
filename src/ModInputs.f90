@@ -189,6 +189,49 @@ module ModInputs
   logical :: UseDiffusion      = .false.
   logical :: UseVerAdvectionT  = .true.
 
+!! Gedy, qingyu, 03/02/2020
+  logical :: useGedy = .false.
+  logical :: UseWindDynamo = .false.
+  real :: DtGedy = 300.
+  logical :: Gedy_useEfield = .false.
+  logical :: UseAMPERE = .false.
+  logical :: UseOIM = .false.
+  logical :: UseSDFM = .false.
+  logical :: UseASYFAC = .false.
+  logical :: RemoveJwd = .false.
+
+!! New chemistry module developed by Cissi Lin (qingyu, 03/03/2020)
+  logical :: UseNewNOChemistry = .false.                                       
+  logical :: UseN2AProfiles = .false.                                          
+  logical :: UseNOChemiEquilibrium = .false.
+
+!! Use NCAR AMIE                                                               
+  logical :: useNCARamie = .false.                                  
+  logical :: useAMIEpotential = .false.                                 
+  logical :: useAMIEaurora = .false.  
+  logical :: scaleAMIEeflux = .false.
+
+!! Use Self-defined Auroral pattern
+  logical :: useSDAM = .false.
+
+!! AEPM, qingyu, 10/15/2020
+  logical :: UseAEPMAurora     = .false.                                      
+  logical :: UseAEPMSpectra    = .false.                                      
+  logical :: hpscaling         = .false.
+  logical :: ScalingHard       = .false.                                       
+  real    :: ScalingHardFactor = 1.0                                           
+  logical :: ScalingSoft       = .false.                                       
+  real    :: ScalingSoftFactor = 1.0                                           
+  logical :: UseFang2010       = .false.
+
+!! EPM, qingyu, 10/15/2020
+  logical :: UseEPMPotential   = .false. 
+
+!! EFVM, qingyu, 10/15/2020  
+  logical :: UseEFVM           = .true.                                    
+  real    :: DtEd1             = 60.                                
+  real    :: DtEd2             = 120. 
+
 !! New Turbulent (Eddy) Conduction Routines
   logical :: UseTurbulentCond = .false.
   logical :: UseUpdatedTurbulentCond = .false.

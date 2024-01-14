@@ -2,6 +2,9 @@ INSTALLFILE = \
 	DATAREAD/srcIndices/Makefile.DEPEND \
 	EMPIRICAL/srcEE/Makefile.DEPEND \
 	EMPIRICAL/srcIE/Makefile.DEPEND \
+	EMPIRICAL/srcAEPM/Makefile.DEPEND\
+	EMPIRICAL/srcEPM/Makefile.DEPEND\
+	EMPIRICAL/srcEFVM/Makefile.DEPEND\
 	EMPIRICAL/srcUA/Makefile.RULES \
 	NOMPI/src/Makefile.RULES \
 	CRASH/src/Makefile.DEPEND \
@@ -22,6 +25,9 @@ clean:
 	cd DATAREAD/srcDemt;          make clean
 	cd EMPIRICAL/srcEE;           make clean
 	cd EMPIRICAL/srcIE;           make clean
+	cd EMPIRICAL/srcAEPM;         make clean
+	cd EMPIRICAL/srcEPM;          make clean
+	cd EMPIRICAL/srcEFVM;         make clean
 	cd EMPIRICAL/srcGM;           make clean
 	cd EMPIRICAL/srcUA;           make clean
 	cd CRASH/src;                 make clean
@@ -38,6 +44,9 @@ distclean:
 	cd DATAREAD/srcDemt;          make distclean
 	cd EMPIRICAL/srcEE;           make distclean
 	cd EMPIRICAL/srcIE;           make distclean
+	cd EMPIRICAL/srcAEPM;         make distclean
+	cd EMPIRICAL/srcEPM;          make distclean
+	cd EMPIRICAL/srcEFVM;         make distclean
 	cd EMPIRICAL/srcGM;           make distclean
 	cd EMPIRICAL/srcUA;           make distclean
 	cd CRASH/src;                 make distclean

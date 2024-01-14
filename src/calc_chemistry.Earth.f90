@@ -103,11 +103,12 @@ subroutine calc_chemistry(iBlock)
   ! This is from Schunk and Nagy 2nd Ed, formula 12.13 (pg 416)
   do iNeutral = 1, nSpeciesTotal
      ! Collisions should be better defined
+     ! Update Collisions with Collisions1, qingyu, 03/02/2020
      mbb = mbb + &
-          (Collisions(1:nLons,1:nLats,1:nAlts,iVIN_)) / &
+          (Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_)) / &
           (mass(iNeutral) + MassI(iO_4SP_))
      mb  = mb + &
-          (mass(iNeutral) * Collisions(1:nLons,1:nLats,1:nAlts,iVIN_)) / &
+          (mass(iNeutral) * Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_)) / &
           (mass(iNeutral) + MassI(iO_4SP_))
   enddo
 

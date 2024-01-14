@@ -65,7 +65,8 @@ subroutine calc_ion_v(iBlock)
      enddo
   endif
 
-  RhoNu = IRho * Collisions(1:nLons,1:nLats,1:nAlts,iVIN_)
+  ! qingyu zhu, collisions -> collisions1, 03/02/2020
+  RhoNu = IRho * Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_)
 
   if (UseNeutralDrag) then
      do iDir = 1, 3
@@ -91,17 +92,20 @@ subroutine calc_ion_v(iBlock)
           Velocity(1:nLons,1:nLats,1:nAlts,iUp_,iBlock) + &
           (Gravity_GB(1:nLons, 1:nLats, 1:nAlts, iBlock) - &
           (PressureGradient(1:nLons,1:nLats,1:nAlts,iUp_) / IRho) / &
-          Collisions(1:nLons,1:nLats,1:nAlts,iVIN_))
+          ! qingyu zhu, collisions -> collisions1, 03/02/2020 
+          Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_))
 
      IVelocity(1:nLons,1:nLats,1:nAlts,iEast_,iBlock) = &
           Velocity(1:nLons,1:nLats,1:nAlts,iEast_,iBlock) - &
           (PressureGradient(1:nLons,1:nLats,1:nAlts,iEast_) / IRho) / &
-          Collisions(1:nLons,1:nLats,1:nAlts,iVIN_)
+          ! qingyu zhu, collisions -> collisions1, 03/02/2020 
+          Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_)
 
      IVelocity(1:nLons,1:nLats,1:nAlts,iNorth_,iBlock) = &
           Velocity(1:nLons,1:nLats,1:nAlts,iNorth_,iBlock) - &
           (PressureGradient(1:nLons,1:nLats,1:nAlts,iNorth_) / IRho) / &
-          Collisions(1:nLons,1:nLats,1:nAlts,iVIN_)
+          ! qingyu zhu, collisions -> collisions1, 03/02/2020 
+          Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_)
          
   else
 
@@ -119,7 +123,8 @@ subroutine calc_ion_v(iBlock)
   enddo
 
   VIParallel = UDotB + &
-       ( gDotB - gpDotB / IRho) / Collisions(1:nLons,1:nLats,1:nAlts,iVIN_)
+       ! qingyu zhu, collisions -> collisions1, 03/02/2020 
+       ( gDotB - gpDotB / IRho) / Collisions1(1:nLons,1:nLats,1:nAlts,iVIN_)
 
 !  write(*,*) VIParallel(1,1,49)
 

@@ -1625,14 +1625,21 @@ subroutine UA_calc_electrodynamics_1d
      call get_potential(iBlock)
      call calc_efield(iBlock)
 
+     ! New collisional rate, qingyu, 03/02/2020
+     call calc_new_collisions(iBlock)
+
      e_density = IDensityS(:,:,:,ie_,iBlock)  
 
-     Vi = Collisions(:,:,:,iVIN_)
+     ! Only update the Vi from collisions to collisions1
+     ! qingyu, 03/02/2020
+     Vi = Collisions1(:,:,:,iVIN_)
      Ve = Collisions(:,:,:,iVEN_) ! + Collisions(:,:,:,iVEI_)
 
      MeVen = Mass_Electron * Collisions(:,:,:,iVEN_)
      MeVei = Mass_Electron * Collisions(:,:,:,iVEI_)
-     MiVin = MeanIonMass * Collisions(:,:,:,iVIN_)
+
+     ! Update MiVin, qingyu, 03/02/2020
+     MiVin = MeanIonMass * Collisions1(:,:,:,iVIN_)
 
      VeOe = Ve**2 + e_gyro**2
      ViOi = Vi**2 + i_gyro**2

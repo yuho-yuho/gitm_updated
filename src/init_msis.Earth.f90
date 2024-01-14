@@ -258,7 +258,11 @@ subroutine init_msis
               hwm_ap(1) = -1.0
               hwm_ap(2) = -1.0
               
-              call HWM07(iyd,hwm_utime,hwm_alt,hwm_lat,hwm_lon,hwm_lst,&
+              ! Replace the HWM07 by HWM14, orginal changes were made
+              ! by Cissi Lin in 2016
+              ! qingyu zhu, 03/02/2020
+
+              call HWM14(iyd,hwm_utime,hwm_alt,hwm_lat,hwm_lon,hwm_lst,&
                    hwm_f107a,hwm_f107,hwm_ap,qw)
 
               ! qw is north&east
@@ -346,7 +350,8 @@ subroutine msis_bcs(iJulianDay,UTime,Alt,Lat,Lon,Lst, &
   hwm_ap(1) = -1.0
   hwm_ap(2) = -1.0
 
-  call HWM07(iyd,hwm_utime,hwm_alt,hwm_lat,hwm_lon,hwm_lst,&
+  ! HWM07 -> HWM14, qingyu zhu, 03/02/2020
+  call HWM14(iyd,hwm_utime,hwm_alt,hwm_lat,hwm_lon,hwm_lst,&
        hwm_f107a,hwm_f107,hwm_ap,qw)
 
   ! qw is north&east

@@ -258,6 +258,9 @@ contains
     ! Velocity
     call AB_1blk4_gc_add_size(nLons,nLats,nAlts,3,2,size)
 
+    ! IVelocity, qingyu, 03/02/2020 (Necessary?)
+    call AB_1blk4_gc_add_size(nLons,nLats,nAlts,3,2,size)
+
     ! Species
     call AB_1blk4_gc_add_size(nLons,nLats,nAlts,nSpecies,2,size)
 
@@ -295,6 +298,10 @@ contains
     call AB_1blk4_gc_pack(nLons,nLats,nAlts,3,2, &
          Velocity(:,:,1:nAlts,:,index),dir,pole,p,out_array)
 
+    ! IVelocity, qingyu, 03/02/2020
+    call AB_1blk4_gc_pack(nLons,nLats,nAlts,3,2, &
+         IVelocity(:,:,1:nAlts,:,index),dir,pole,p,out_array)
+
     call AB_1blk4_gc_pack(nLons,nLats,nAlts,nSpecies,2, &
          VerticalVelocity(:,:,1:nAlts,1:nSpecies,index),dir,pole,p,out_array)
 
@@ -329,6 +336,10 @@ contains
     call AB_1blk4_gc_unpack(nLons,nLats,nAlts,3,2, &
          Velocity(:,:,1:nAlts,:,index),dir,p,in_array)
 
+    ! IVelocity, qingyu, 03/02/2020 
+    call AB_1blk4_gc_unpack(nLons,nLats,nAlts,3,2, &
+         IVelocity(:,:,1:nAlts,:,index),dir,p,in_array)
+
     call AB_1blk4_gc_unpack(nLons,nLats,nAlts,nSpecies,2, &
          VerticalVelocity(:,:,1:nAlts,1:nSpecies,index),dir,p,in_array)
 
@@ -356,6 +367,9 @@ contains
     size=0
     call AB_array3_gc_add_size(nLons,nLats,nAlts,2,size)
 
+    call AB_array4_gc_add_size(nLons,nLats,nAlts,3,2,size)
+
+    ! IVelocity, qingyu, 03/02/2020 (Necessary?)
     call AB_array4_gc_add_size(nLons,nLats,nAlts,3,2,size)
 
     ! Vertical Velocity
@@ -388,6 +402,10 @@ contains
 
     call AB_array4_gc_pack(nLons,nLats,nAlts,3,2, &
          Velocity(:,:,1:nAlts,:,index),dir,pole,p,out_array)
+
+    ! IVelocity, qingyu, 03/02/2020  
+    call AB_array4_gc_pack(nLons,nLats,nAlts,3,2, &
+         IVelocity(:,:,1:nAlts,:,index),dir,pole,p,out_array)
 
     tmpN = VerticalVelocity(:,:,1:nAlts,1:nSpecies,index)
     call AB_array4_gc_pack(nLons,nLats,nAlts,nSpecies,2, &
@@ -430,6 +448,10 @@ contains
 
     call AB_array4_gc_unpack(nLons,nLats,nAlts,3,2, &
          Velocity(:,:,1:nAlts,:,index),dir,p,in_array)
+
+    ! IVelocity, qingyu, 03/02/2020
+    call AB_array4_gc_unpack(nLons,nLats,nAlts,3,2, &
+         IVelocity(:,:,1:nAlts,:,index),dir,p,in_array)
 
     tmpN = VerticalVelocity(:,:,1:nAlts,1:nSpecies,index)
     call AB_array4_gc_unpack(nLons,nLats,nAlts,nSpecies,2, &

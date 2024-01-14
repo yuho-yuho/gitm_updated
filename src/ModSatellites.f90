@@ -7,7 +7,7 @@ module ModSatellites
   implicit none
 
   integer, parameter :: nMaxSats = 20
-  integer, parameter :: nMaxSatInputLines = 10000
+  integer, parameter :: nMaxSatInputLines = 100000
   integer, parameter :: nMaxSatPos = 50
 
   integer :: nSats = 0

@@ -131,6 +131,7 @@ end subroutine read_satellites
 subroutine move_satellites
 
   use ModSatellites
+  use ModConstants
   use ModGITM, only: nBlocks, dt
   use ModTime, only: CurrentTime, tSimulation
 
@@ -190,14 +191,37 @@ subroutine move_satellites
                    (SatTime(iSat,iLine+1) - SatTime(iSat,iLine))
            endif
 
+           ! Nott that SatCurrentPos is in the unit of radius instead of degree
+           ! So that the original code cannot process first two cases
+           ! qingyu, 08/27/2020
            do iPos = 1, nSatPos(iSat,iLine)
               do i=1,3
                  if (i == 1 .and. &
-                      SatPos(iSat, i, iPos, iLine) > 300 .and. &
-                      SatPos(iSat, i, iPos, iLine+1) < 60) then
+                      SatPos(iSat, i, iPos, iLine) > 5./3.*pi .and. &
+                      SatPos(iSat, i, iPos, iLine+1) < pi/3.) then
                     SatCurrentPos(iSat, i, iPos) = &
                          (  r)*SatPos(iSat, i, iPos, iLine) + &
-                         (1-r)*(SatPos(iSat, i, iPos, iLine+1)+360.0)
+                         (1-r)*(SatPos(iSat, i, iPos, iLine+1)+2.*pi)
+
+                    ! It could be potentially higher than 360
+                    ! qingyu, 08/26/2020
+                    if (SatCurrentPos(iSat, i, iPos) >= 2.*pi) &
+                         SatCurrentPos(iSat, i, iPos) = &
+                         SatCurrentPos(iSat, i, iPos) - 2.*pi
+
+                 ! Add an additional case
+                 ! qingyu, 08/26/2020
+                 else if (i==1 .and. SatPos(iSat, i, iPos, iLine) < pi/3. &
+                      .and. SatPos(iSat, i, iPos, iLine+1) > 5./3.*pi) then
+
+                    SatCurrentPos(iSat, i, iPos) = & 
+                         (  r)*(SatPos(iSat, i, iPos, iLine) + 2*pi) + &
+                         (1-r)*SatPos(iSat, i, iPos, iLine+1)
+
+                    if (SatCurrentPos(iSat, i, iPos) >= 2*pi) &       
+                         SatCurrentPos(iSat, i, iPos) = &             
+                         SatCurrentPos(iSat, i, iPos) - 2*pi
+
                  else
                     SatCurrentPos(iSat, i, iPos) = &
                          (  r)*SatPos(iSat, i, iPos, iLine) + &

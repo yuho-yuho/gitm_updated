@@ -8,6 +8,9 @@ subroutine set_inputs
   use ModPlanet
   use ModSatellites
 
+  ! qingyu, 03/03/2020
+  use ModNOChemistry
+  
   implicit none
 
   integer, external :: bad_outputtype
@@ -296,6 +299,55 @@ subroutine set_inputs
               if (UseGSWMTides)  UseMSISOnly = .true.
               if (UseWACCMTides) UseMSISOnly = .true.
            endif
+
+        case ("#GEDY") ! qingyu, 03/02/2020
+           call read_in_logical(UseGedy, iError)
+           call read_in_logical(UseWindDynamo, iError)
+           call read_in_real(DtGedy,iError)
+           call read_in_logical(Gedy_useEfield, iError)
+           call read_in_logical(UseAMPERE, iError)
+           call read_in_logical(UseOIM, iError)
+           call read_in_logical(UseSDFM, iError)
+           call read_in_logical(UseASYFAC, iError)
+           call read_in_logical(RemoveJwd, iError)
+
+        case("#NCARAMIE")
+           call read_in_logical(useNCARamie, iError) 
+           call read_in_logical(useAMIEpotential, iError)
+           call read_in_logical(useAMIEaurora, iError)
+           call read_in_logical(scaleAMIEeflux, iError)
+
+        case("#SDPATTERNS")
+           call read_in_logical(useSDAM, iError)
+
+        case("#AEPM")                                                          
+           call read_in_logical(UseAEPMAurora, iError)                         
+           call read_in_logical(UseAEPMSpectra, iError)                        
+           call read_in_logical(HPScaling, iError)                             
+           call read_in_logical(ScalingHard, iError)                           
+           call read_in_real(ScalingHardFactor,iError)                         
+           call read_in_logical(ScalingSoft, iError)
+           call read_in_real(ScalingSoftFactor,iError)    
+           call read_in_logical(UseFang2010, iError)  
+
+        case("#EPM") ! qingyu, 10/15/2020                                 
+           call read_in_logical(UseEPMPotential, iError) 
+                                                                
+        case("#EFVM") ! qingyu, 10/15/2020  
+           call read_in_logical(UseEFVM, iError)        
+           call read_in_real(DtEd1,iError)    
+           call read_in_real(DtEd2,iError) 
+
+        case ("#NOCHEMISTRY") ! qingyu, 03/03/2020
+           call read_in_logical(UseNewNOChemistry, iError)
+           call read_in_logical(UseN2AProfiles, iError)
+           call read_in_real(N2AScaling, iError)
+           call read_in_logical(UseNOHigherVibrationalStates, iError)
+           call read_in_logical(UseTCIParameterizationS, iError)
+           call read_in_logical(UseTCIParameterizationGM, iError)
+           call read_in_real(ScalingEuvAbsRate, iError)
+           call read_in_real(ScalingEuvIonRate, iError)
+           call read_in_real(ScalingIonPrecipIonRate, iError)
 
         case ("#DUSTDATA")
            call read_in_logical(UseDustDistribution,iError) 

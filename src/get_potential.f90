@@ -110,10 +110,20 @@ subroutine set_indices
   use ModUserGITM
   use ModNewell
 
+  ! qingyu, 05/24/2020
+  use aepm_interface, only: aepm_readin, aepm_readhp
+  ! qingyu, 05/30/2020
+  use epm_interface, only: epm_readin
+  ! qingyu, 08/20/2020
+  use efvm_interface, only: efvm_readin 
+
   implicit none
 
   real :: temp, by, bz, vx, den
   integer :: iError
+  ! qingyu, 05/24/2020
+  real :: hpin
+
   iError = 0
 
   if (UseIMF) then
@@ -165,12 +175,28 @@ subroutine set_indices
 
      if (UseNewellAurora) call calc_dfdt(by, bz, vx)
 
+     ! qingyu, 05/24/2020
+     ! Read IMF and solar wind inputs for the AEPM 
+     call aepm_readin(by,bz,vx,den)
+
+     ! qingyu, 05/30/2020
+     ! Read IMF and solar wind inputs for the EPM 
+     call epm_readin(by,bz,vx,den)
+
+     ! qingyu, 08/20/2020
+     ! Read IMF and solar wind inputs for the EFVM 
+     call efvm_readin(by,bz,vx,den)
+
   endif
 
   if (UseHPI) then
 
      call get_HPI(CurrentTime, temp, iError)
      call IO_SetHPI(temp)
+
+     ! qingyu, 05/24/2020
+     ! Whether need the hp inputs to scale the AEPM outputs 
+     call aepm_readhp(temp,hpscaling)
 
      if (iError /= 0) then
         write(*,*) "Code Error in get_hpi called from get_potential.f90"
@@ -202,6 +228,8 @@ subroutine get_potential(iBlock)
   use ModInputs
   use ModUserGITM
   use ModNewell
+  use ModAMIE, only: get_currenttime_amie ! qingyu, 02/02/2021
+  use ModSDAM, only: get_currenttime_sdam ! qingyu, 02/26/2021 
 
   implicit none
 
@@ -212,6 +240,10 @@ subroutine get_potential(iBlock)
   logical :: IsFirstPotential(nBlocksMax) = .true.
   logical :: IsFirstAurora(nBlocksMax) = .true.
   real    :: mP, dis
+
+  ! qingyu, 08/20/2020
+  logical :: IsFirstdEd1(nBlocksMax) = .true.
+  logical :: IsFirstdEd2(nBlocksMax) = .true.
 
   real, dimension(-1:nLons+2,-1:nLats+2) :: TempPotential, Grid, Dynamo
 
@@ -240,6 +272,22 @@ subroutine get_potential(iBlock)
 
   if (iDebugLevel > 1) write(*,*) "==> Setting up IE Grid"
 
+  !!! Update the flip sign for the dEd1 and dEd2 
+  if (floor((tSimulation-dt)/DtEd1) /= floor((tsimulation)/DtEd1)) &
+       d1_dir = (-1)**floor((tsimulation)/DtEd1)
+  
+  if (floor((tSimulation-dt)/DtEd2) /= floor((tsimulation)/DtEd2)) &
+       d2_dir = (-1)**floor((tsimulation)/DtEd2)
+
+  !if (iProc==0) write(*,*) tSimulation, d1_dir, d2_dir  
+
+  ! qingyu, 02/02/2021
+  if (useNCARamie) call get_currenttime_amie
+  ! qingyu, 02/26/2021
+  if (useSDAM) call get_currenttime_sdam
+
+  !!! Electric potential 
+  ! ---------------------------------------------------------------------------
   if (floor((tSimulation-dt)/DtPotential) /= &
        floor((tsimulation)/DtPotential) .or. IsFirstPotential(iBlock)) then
 
@@ -247,76 +295,103 @@ subroutine get_potential(iBlock)
 
      Potential(:,:,:,iBlock) = 0.0
 
-     do iAlt=-1,nAlts+2
+     ! ------------------------------------------------------------------------
+     ! qingyu, 05/30/2020
+     ! Use EPM or default Weimer 2005 
+     ! ------------------------------------------------------------------------
+     if (useEPMpotential) then ! ASHLEY-E
+        
+        call run_epm(iBlock)
+        Potential(:,:,:,iBlock) = EPM_Potential(:,:,:)
 
-        call start_timing("setgrid")
-        call UA_SetGrid(                    &
-             MLT(-1:nLons+2,-1:nLats+2,iAlt), &
-             MLatitude(-1:nLons+2,-1:nLats+2,iAlt,iBlock), iError)
-        call end_timing("setgrid")
+        !! If need electric field varaibility
+        ! qingyu, 08/18/2020
+        if (UseEFVM) call run_efvm(iBlock)
 
-        if (iError /= 0) then
-           write(*,*) "Error in routine get_potential (UA_SetGrid):"
-           write(*,*) iError
-           call stop_gitm("Stopping in get_potential")
-        endif
+     ! qingyu, 02/02/2021
+     elseif (useAMIEpotential) then ! AMIE from Gang
 
-        if (iDebugLevel > 1 .and. iAlt == 1) &
-             write(*,*) "==> Getting IE potential"
+        call get_amie_pot(iBlock)
+        Potential(:,:,:,iBlock) = AMIE_Potential(:,:,:)
 
-        TempPotential = 0.0
+     else ! Weimer (2005)
+        
+        do iAlt=-1,nAlts+2
 
-        call start_timing("getpotential")
-        call UA_GetPotential(TempPotential, iError)
-        call end_timing("getpotential")
+           call start_timing("setgrid")
+           call UA_SetGrid(                    &
+                MLT(-1:nLons+2,-1:nLats+2,iAlt), &
+                MLatitude(-1:nLons+2,-1:nLats+2,iAlt,iBlock), iError)
+           call end_timing("setgrid")
+           
+           if (iError /= 0) then
+              write(*,*) "Error in routine get_potential (UA_SetGrid):"
+              write(*,*) iError
+              call stop_gitm("Stopping in get_potential")
+           endif
 
-        if (iError /= 0) then
-           write(*,*) "Error in get_potential (UA_GetPotential):"
-           write(*,*) iError
+           if (iDebugLevel > 1 .and. iAlt == 1) &
+                write(*,*) "==> Getting IE potential"
+           
            TempPotential = 0.0
-!           call stop_gitm("Stopping in get_potential")
-        endif
+           
+           call start_timing("getpotential")
+           call UA_GetPotential(TempPotential, iError)
+           call end_timing("getpotential")
+           
+           if (iError /= 0) then
+              write(*,*) "Error in get_potential (UA_GetPotential):"
+              write(*,*) iError
+              TempPotential = 0.0
+              !           call stop_gitm("Stopping in get_potential")
+           endif
 
-        if (UseDynamo) then
-           dynamo = 0.0
-           call get_dynamo_potential( &
-                MLongitude(-1:nLons+2,-1:nLats+2,iAlt,iBlock), &
-                MLatitude(-1:nLons+2,-1:nLats+2,iAlt,iBlock), dynamo)
-           do iLon = -1,nLons+2
-              do iLat = -1,nLats+2 
-                 if (abs(MLatitude(iLon, iLat, iAlt, iBlock)) < DynamoHighLatBoundary-2.0) then
-                    dis= (DynamoHighLatBoundary - 2.0 - &
-                          abs(MLatitude(iLon, iLat, iAlt, iBlock)))/10.0
-                    if (dis > 1.0) then
-                       TempPotential(iLon,iLat) = dynamo(iLon,iLat)
-                    else
-                       TempPotential(iLon,iLat) = &
-                            (1.0-dis) * TempPotential(iLon,iLat) + &
-                            dis * dynamo(iLon,iLat)
+           if (UseDynamo) then
+              dynamo = 0.0
+              call get_dynamo_potential( &
+                   MLongitude(-1:nLons+2,-1:nLats+2,iAlt,iBlock), &
+                   MLatitude(-1:nLons+2,-1:nLats+2,iAlt,iBlock), dynamo)
+              do iLon = -1,nLons+2
+                 do iLat = -1,nLats+2 
+                    if (abs(MLatitude(iLon, iLat, iAlt, iBlock)) < &
+                         DynamoHighLatBoundary-2.0) then
+
+                       dis= (DynamoHighLatBoundary - 2.0 - &
+                            abs(MLatitude(iLon, iLat, iAlt, iBlock)))/10.0
+                       if (dis > 1.0) then
+                          TempPotential(iLon,iLat) = dynamo(iLon,iLat)
+                       else
+                          TempPotential(iLon,iLat) = &
+                               (1.0-dis) * TempPotential(iLon,iLat) + &
+                               dis * dynamo(iLon,iLat)
+                       endif
                     endif
-                 endif
+                 enddo
               enddo
-           enddo
 
-        endif
+           endif
 
-        Potential(:,:,iAlt,iBlock) = TempPotential
+           Potential(:,:,iAlt,iBlock) = TempPotential
 
-        !----------------------------------------------
-        ! Another example of user output
+           !----------------------------------------------
+           ! Another example of user output
 
-        if (iAlt == 1) then 
+           if (iAlt == 1) then 
 
-           UserData2d(1:nLons,1:nLats,1,1,iBlock) = &
-                TempPotential(1:nLons,1:nLats)/1000.0
-        endif
+              UserData2d(1:nLons,1:nLats,1,1,iBlock) = &
+                   TempPotential(1:nLons,1:nLats)/1000.0
+           endif
 
-     enddo
+        enddo
+
+     end if
 
      IsFirstPotential(iBlock) = .false.
 
   endif
 
+  !!! Aurora
+  ! ---------------------------------------------------------------------------
   if (floor((tSimulation-dt)/DtAurora) /= &
        floor((tsimulation)/DtAurora) .or. IsFirstAurora(iBlock)) then
 
@@ -326,6 +401,23 @@ subroutine get_potential(iBlock)
 
      if (UseNewellAurora) then
         call run_newell(iBlock)
+
+     ! qingyu, 05/24/2020
+     elseif (UseAEPMAurora) then
+
+        ! Run AEPM main function
+        call run_aepm(iBlock) 
+
+     ! qingyu, 02/02/2021
+     elseif (useAMIEaurora) then
+
+        call get_amie_aurora(iBlock) 
+
+     ! qingyu, 02/26/2021
+     elseif (useSDAM) then
+        
+        call get_sdam_aurora(iBlock)
+
      else
 
         call start_timing("setgrid")

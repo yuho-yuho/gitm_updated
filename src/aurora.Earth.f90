@@ -7,6 +7,9 @@ subroutine aurora(iBlock)
   use ModConstants
   use ModUserGITM
 
+  ! qingyu, 05/24/2020
+  use aepm, only: aepm_nchannel
+
   implicit none
 
   integer, intent(in) :: iBlock
@@ -23,6 +26,12 @@ subroutine aurora(iBlock)
 
   real :: f1, f2, f3, f4, f5, power
   real :: de1, de2, de3, de4, de5, detotal, h
+
+  ! qingyu, 05/24/2020
+  real :: diff_nf(aepm_nchannel), half_ae
+
+  ! qingyu, 08/12/2020
+  real :: ScaleHeight, qqq, rrr, eee, qqq1, ttt
 
   if (IsFirstTime(iBlock)) then
      IsFirstTime(iBlock) = .false.
@@ -62,6 +71,9 @@ subroutine aurora(iBlock)
         eflx_ergs = ElectronEnergyFlux(j,i) !/ (1.0e-7 * 100.0 * 100.0)
         av_kev    = ElectronAverageEnergy(j,i)
 
+        ! qingyu, 05/24/2020
+        diff_nf   = EleDiffNFlux(j,i,:)
+
         !p = 40.0 * eflx_ergs**0.5 * av_kev / (16.0 + av_kev**2)
         !h = 0.45 * av_kev**0.85 * p
         !write(*,*) "eflux, avee: ", eflx_ergs, av_kev
@@ -99,12 +111,12 @@ subroutine aurora(iBlock)
            ! The eflux/avee gives the number flux, which is what is the code
            ! needs.
 !           a = (eflux/avee) * 2*sqrt(1 / (pi*(avee/2)**3))
-           a = (eflux/avee)* (2**0.5) * ((3/(avee*pi))**(3.0/2.0)) * pi
+           !a = (eflux/avee)* (2**0.5) * ((3/(avee*pi))**(3.0/2.0)) * pi
 
-           do n=1,ED_N_Energies
+           !do n=1,ED_N_Energies
               ! I think that this is wrong
-              ED_flux(n) = &
-                   a*sqrt(ed_energies(n))*exp(-1.5*ed_energies(n)/avee)
+              !ED_flux(n) = &
+           !a*sqrt(ed_energies(n))*exp(-1.5*ed_energies(n)/avee)
 
               ! Pat Newell says that while the ratio of the total energy flux
               ! to the number flux is 3kT/2, in reality, it is 2kT, since
@@ -112,10 +124,26 @@ subroutine aurora(iBlock)
 !              ED_flux(n) = &
 !                   a*sqrt(ed_energies(n))*exp(-2.0*ed_energies(n)/avee)
 
-           enddo
+           !enddo
+
+           ! qingyu, 05/24/2020
+
+           !! Maxwellian 
+           half_ae = avee/2.                                                   
+           a = eflux/(2*half_ae**3)                                            
+           do n=1,ED_N_Energies                                                
+              ED_flux(n) = a * Ed_Energies(n) * exp(-Ed_Energies(n)/half_ae)   
+           end do
+
+           !! AEPM spectrum 
+           if (UseAEPMAurora .and. UseAEPMSpectra) &
+                call get_aepm_spectra(diff_nf,ED_flux)
+
+           ED_flux = ED_flux * pi
 
         endif
 
+        !!! Newell aurora 
         if (UseNewellAurora .and. UseNewellMono .and. &
              ElectronNumberFluxMono(j,i) > 0.0) then
 
@@ -254,6 +282,48 @@ subroutine aurora(iBlock)
               endif
 
            enddo
+
+           ! Use Fang 2010 Ionization profile
+           ! qingyu, 08/12/2020
+
+           if (useFang2010) then
+
+              do k=1,nAlts
+
+                 ! Scale Height [m -> km]
+                 ScaleHeight = -Temperature(j,i,k,iBlock)*TempUnit(j,i,k) &  
+                      * Boltzmanns_Constant/&                                
+                      (Gravity_GB(j,i,k,iBlock)*MeanMajorMass(j,i,k))*1e-3
+
+                 ! Rho [kg/m3 -> g/cm3]
+                 rrr = rho(j,i,k,iBlock) * 1.e-3
+                 
+                 ! Ionization rate [cm3/s]
+                 qqq = 0.
+
+                 do n=1,ED_N_Energies 
+                 
+                    eee = ED_Energies(n)/1000. ! Emono (keV)
+
+                    ! When using previous ionization file, an additional     
+                    ! factor is multiplied to ED_Flux                       
+                    ! Perhaps not necessary for Fang 2010                   
+                    ttt = ED_Flux(n)/pi*(ED_Energies(n)**2)*&               
+                         (1.602*1.0e-12)*0.364 ! Qmono
+
+                    call sub_elecmono(eee,ttt,rrr,ScaleHeight,qqq1)
+
+                    ! Sum all channels 
+                    qqq = qqq + qqq1
+
+                 end do ! ED_N_Energies
+
+                 ! [cm3/s -> m3/s]
+                 AuroralBulkIonRate(j,i,k) = qqq * 1e6
+
+              end do ! Altitude
+
+           end if ! Fang 2010
 
         endif
 

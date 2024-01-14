@@ -1,4 +1,4 @@
- 
+
 program GITM
 
   use ModInputs
@@ -44,6 +44,18 @@ program GITM
      if (.not. Is1D) call calc_timestep_horizontal
 
      call advance
+
+     ! Advance the Gedy, qingyu, 03/02/2020
+     call advance_gedy
+
+     ! Post-processes 
+     ! Calculate the TEC, qingyu, 10/15/2020
+     ! Calculate the height-integrated Joule heating, 11/26/2020
+     do iBlock=1,nBlocks 
+        call calc_tec(iBlock)
+        call calc_integrated_jh(iBlock)
+        call calc_on2ratio(iBlock)
+     end do
 
      if (.not.IsFramework) call check_stop
 

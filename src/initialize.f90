@@ -10,6 +10,17 @@ subroutine initialize_gitm(TimeIn)
   use ModTime
   use ModEUV
   use ModIndicesInterfaces
+  ! qingyu, 03/02/2020
+  use ModGedy, only: init_gedy
+  ! qingyu, 10/15/2020
+  use aepm, only: initialize_aepm                                              
+  use epm, only: initialize_epm                                                
+  use efvm, only: initialize_efvm
+  ! qingyu, 02/02/2021
+  use ModAMIE, only: read_ncar_amie
+  ! qingyu, 02/26/2021
+  use ModSDAM, only: read_sdam 
+
   implicit none
 
   type (UAM_ITER) :: r_iter
@@ -457,7 +468,37 @@ subroutine initialize_gitm(TimeIn)
 !    call calc_rates(iBlock)
 !  enddo
 
+  ! Initialize Gedy at the root procssor, qingyu, 03/02/2020
+  if (useGedy) then
+     if (iProc .eq. 0) then
+        call report("Initializing Gedy",1)
+        call init_gedy(iTimeArray(1),iTimeArray(2),&
+             iTimeArray(3))
+     endif
+  endif
+
+  ! Initialize ASHLEY
+  if (UseAEPMAurora) call initialize_aepm                                      
+  if (UseAEPMAurora .and. iProc==0) write (*,*) "Done initialize AEPM"         
+                                                                               
+  if (UseEPMPotential) call initialize_epm                                     
+  if (UseEPMPotential .and. iProc==0) write (*,*) "Done initialize EPM"        
+                                                                               
+  if (UseEPMPotential) call initialize_efvm                                    
+  if (UseEFVM .and. iProc==0) write (*,*) "Done initialize EFVM"
+
+  ! Initialize AMIE
+  ! qingyu, 02/02/2021
+  if (useNCARamie) call read_ncar_amie
+  if (useNCARamie .and. scaleAMIEeflux) call initialize_aepm
+  if (useNCARamie .and. iProc==0) write(*,*) "Done initizlize AMIE"
+
+  ! Initialize SDAM
+  ! qingyu, 02/26/2021
+  if (useSDAM) call read_sdam
+
   call end_timing("initialize")
+
 
 end subroutine initialize_gitm
 

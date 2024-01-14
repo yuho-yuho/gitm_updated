@@ -1,0 +1,44 @@
+FC = ifort
+
+MODULE = test_efvm
+
+OBJS = $(MODULE).o \
+	EFVM_Interface.o \
+	EFVM_Initialization.o\
+	EFVM_util.o\
+	EFVM_util1.o\
+	EFVM_Ualibrary.o \
+	EFVM.o
+
+FFLAGS =  -O2 -I/opt/local/include
+LDFLAGS = -L/usr/lib
+
+$(MODULE): $(OBJS)
+	$(FC) $(FFLAGS) -o $@ $(OBJS)
+
+
+EFVM_Interface.o: EFVM_Interface.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+EFVM_Initialization.o: EFVM_Initialization.f90 EFVM_Interface.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+EFVM_util.o: EFVM_util.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+EFVM_util1.o: EFVM_util1.f90
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+EFVM_Ualibrary.o: EFVM_Ualibrary.f90 EFVM_Interface.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@
+
+EFVM.o: EFVM.f90 EFVM_Interface.o EFVM_Initialization.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@ 
+
+
+$(MODULE).o: $(MODULE).f90 EFVM.o \
+	EFVM_Interface.o EFVM_Initialization.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -c $< -o $@ 
+
+clean:
+	rm -rf *~ *.o *.mod $(MODULE) *.out
