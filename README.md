@@ -32,7 +32,7 @@ cd gitm_default
 ./Config.pl -install -compiler=ifortmpif90 -earth
 ```
 
-Add these fours lines in the end of your /GITM/Makefile.def file:
+Add the following four lines to the end of the /GITM/Makefile.def file:
 
 ```shell
 EDYNAMICSDIR = ${UADIR}/util/EDYNAMICS
