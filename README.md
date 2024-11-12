@@ -32,6 +32,15 @@ cd gitm_default
 ./Config.pl -install -compiler=ifortmpif90 -earth
 ```
 
+Add these fours lines in the end of your /GITM/Makefile.def file:
+
+```shell
+EDYNAMICSDIR = ${UADIR}/util/EDYNAMICS
+EMPIRICALAEPMDIR    = ${UADIR}/util/EMPIRICAL/srcAEPM
+EMPIRICALEPMDIR    = ${UADIR}/util/EMPIRICAL/srcEPM
+EMPIRICALEFVMDIR    = ${UADIR}/util/EMPIRICAL/srcEFVM
+```
+
 4\. Compile your GITM codes
 
 ```shell
