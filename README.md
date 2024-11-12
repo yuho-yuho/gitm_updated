@@ -1,4 +1,4 @@
-# gitm_default
+# gitm_on_tacc
 Default version of the Global Ionosphere/Thermosphere Model used by the Upper Atmosphere Group at University of Texas at Arlington.
 
 GITM has been developed in fortran-90. Original code and copyright by University of Michigan. Please refer to the paper by Ridley, Deng & Tóth (2006) at https://doi.org/10.1016/j.jastp.2006.01.008. 
@@ -32,7 +32,7 @@ cd gitm_default
 ./Config.pl -install -compiler=ifortmpif90 -earth
 ```
 
-Add the following four lines to the end of the /GITM/Makefile.def file:
+4\. Add the following four lines to the end of the /GITM/Makefile.def file:
 
 ```shell
 EDYNAMICSDIR = ${UADIR}/util/EDYNAMICS
@@ -41,26 +41,33 @@ EMPIRICALEPMDIR    = ${UADIR}/util/EMPIRICAL/srcEPM
 EMPIRICALEFVMDIR    = ${UADIR}/util/EMPIRICAL/srcEFVM
 ```
 
-4\. Compile your GITM codes
+5\. Compile your GITM codes
 
 ```shell
 gmake
 ```
 
-5\. Create your run directory
+6\. Create your run directory
 
 ```shell
 make rundir
 ```
 
-6\. Apply idev with 4 nodes & 144 mpi tasks
+7\. Link input data for your rundir
+
+```shell
+cd run/DataIn
+ln -s ~/GITM/srcData/* .
+```
+
+8\. Apply idev with 4 nodes & 144 mpi tasks
 
 ```shell
 cd run
 idev -m 10 -N 4 -n 144
 ```
 
-7\. Run your GITM on idev (I use ibrun instead of mpirun)
+9\. Run your GITM on idev (I use ibrun instead of mpirun)
 
 ```shell
 ibrun ./GITM.exe
