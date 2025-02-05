@@ -1,29 +1,28 @@
 # gitm_updated
-Default version of the Global Ionosphere/Thermosphere Model used by the Upper Atmosphere Group at University of Texas at Arlington.
+Updated version of the Global Ionosphere/Thermosphere Model used by the Upper Atmosphere Group at University of Texas at Arlington.
 
-GITM has been developed in fortran-90. Original code and copyright by University of Michigan. Please refer to the paper by Ridley, Deng & Tóth (2006) at https://doi.org/10.1016/j.jastp.2006.01.008. 
+For basic info about running GITM on TACC, please refer to the repository at /gitm_default/. 
 
-Other useful links:
+## Main Updates:
 
-TACC LS6 User Guide: https://docs.tacc.utexas.edu/hpc/lonestar6/
-
-## HPC Environments & Dependencies:
-
-1. GITM runs on TACC machine. 
-2. GITM needs MPI to work.
+1. Updated low-latitude dynamo: NCAR Electrodynamo added 
+2. Updated high-latitude forcing specifications, e.g., AMIE
+3. Updated interhemispheric Asymmetry, e.g., IMF By effect
+4. Coupled with new empirical models for high-latitude forcing
+5. Modefied auroral precipitation profile and energy types
 
 ## Quick Start:
 
 1\. Clone the repository on your TACC Home directory
 
 ```shell
-git clone https://github.com/yuho-yuho/gitm_default.git
+git clone https://github.com/yuho-yuho/gitm_updated.git
 ```
 
 2\. Go into the folder (You can change to whatever you want)
 
 ```shell
-cd gitm_default
+cd gitm_updated
 ```
 
 3\. Configure the Fortran compiler with ifort (By default)
@@ -45,6 +44,20 @@ EMPIRICALEFVMDIR    = ${UADIR}/util/EMPIRICAL/srcEFVM
 
 ```shell
 gmake
+cd src
+```
+
+Open the ModSize.f90 file and modify the 'nLons' and 'nlats' from x to 12:
+
+```shell
+integer, parameter :: nLons = 12
+integer, parameter :: nLats = 12
+```
+
+Then return to the previous directory:
+
+```shell
+cd ..
 ```
 
 6\. Create your run directory
@@ -65,6 +78,14 @@ ln -s ~/GITM/srcData/* .
 ```shell
 cd run
 idev -m 10 -N 4 -n 144
+```
+
+Open the UAM.in file and modify the 'lons' and 'lats' from 2 to 12:
+
+```shell
+#GRID
+12              lons
+12              lats
 ```
 
 9\. Run your GITM on idev (I use ibrun instead of mpirun)
