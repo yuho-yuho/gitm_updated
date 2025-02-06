@@ -98,7 +98,8 @@ ModFAC.o:\
 	params.o \
 	calc_coef.o \
 	fieldline_p.o \
-	fieldline_s.o
+	fieldline_s.o \
+	readin.o
 
 edynamicsout.o:\
 	params.o \

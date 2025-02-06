@@ -1,0 +1,636 @@
+main.o:\
+	ModInputs.o \
+	ModTime.o \
+	ModGITM.o
+
+planet.o:\
+	ModPlanet.o \
+	ModEUV.o \
+	ModNOChemistry.o \
+	ModTime.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o \
+	ModInputs.o \
+	ModSources.o \
+	ModGITM.o \
+	ModSize.o
+
+satellites.o:\
+	ModSatellites.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModTime.o
+
+calc_electron_temperature.o:\
+	ModSize.o \
+	ModGITM.o \
+	ModPlanet.o \
+	ModRates.o \
+	ModEUV.o \
+	ModSources.o \
+	ModConstants.o \
+	ModTime.o
+
+run_aepm.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcAEPM/aepm.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModSources.o
+
+aurora.o:\
+	ModGITM.o \
+	ModSources.o \
+	ModTime.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModUser.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcAEPM/aepm.o
+
+run_epm.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcEPM/epm.o \
+	ModGITM.o \
+	${SHAREDIR}/ModMpi.o
+
+run_efvm.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcEFVM/EFVM.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcEPM/epm.o \
+	ModGITM.o
+
+get_potential.o:\
+	ModGITM.o \
+	ModTime.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o \
+	ModInputs.o \
+	ModUser.o \
+	ModNewell.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcAEPM/AEPM_Interface.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcEPM/EPM_Interface.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcEFVM/EFVM_Interface.o \
+	ModAMIE.o \
+	ModSDAM.o \
+	ModElectrodynamics.o
+
+calc_efield.o:\
+	ModGITM.o \
+	ModInputs.o
+
+set_inputs.o:\
+	ModInputs.o \
+	ModSize.o \
+	ModGITM.o \
+	ModTime.o \
+	ModPlanet.o \
+	ModSatellites.o \
+	ModNOChemistry.o
+
+init_energy_deposition.o:\
+	ModInputs.o \
+	ModGITM.o \
+	ModSources.o
+
+get_glow.o:\
+	ModPlanet.o \
+	ModTime.o \
+	ModGITM.o \
+	ModEUV.o
+
+init_grid.o:\
+	ModGITM.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModPlanet.o \
+	ModSphereInterface.o \
+	ModTime.o \
+	ModEUV.o \
+	ModSources.o
+
+vertical_solver.o:\
+	ModVertical.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModPlanet.o \
+	ModSize.o \
+	ModTime.o \
+	ModConstants.o \
+	ModSources.o \
+	ModLimiter.o
+
+library.o:\
+	ModInputs.o \
+	ModGITM.o \
+	${SHAREDIR}/ModMpi.o
+
+stretch_grid.o:\
+	ModInputs.o
+
+init_mpi.o:\
+	ModGITM.o \
+	ModTime.o \
+	${SHAREDIR}/ModMpi.o
+
+restart.o:\
+	ModGITM.o \
+	ModInputs.o \
+	ModTime.o \
+	ModSphereInterface.o
+
+initialize.o:\
+	ModGITM.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModPlanet.o \
+	ModRates.o \
+	ModSphereInterface.o \
+	ModTime.o \
+	ModEUV.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o \
+	ModGedy.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcAEPM/aepm.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcEPM/epm.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcEFVM/EFVM.o \
+	ModAMIE.o \
+	ModSDAM.o
+
+init_msis.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o \
+	ModTime.o \
+	ModInputs.o \
+	ModPlanet.o \
+	ModGITM.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcUA/ModMsis90.f \
+	ModConstants.o
+
+init_iri.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcUA/ModIri90.f \
+	ModGITM.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModPlanet.o \
+	ModTime.o
+
+init_b0.o:\
+	ModSize.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModTime.o \
+	ModPlanet.o \
+	ModConstants.o
+
+init_altitude.o:\
+	ModInputs.o \
+	ModPlanet.o \
+	ModGITM.o \
+	ModTime.o
+
+finalize.o:\
+	ModInputs.o \
+	ModSphereInterface.o
+
+calc_neutral_friction.o:\
+	ModGITM.o \
+	ModSources.o \
+	ModPlanet.o \
+	ModInputs.o
+
+calc_electrodynamics.o:\
+	ModElectrodynamics.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModConstants.o \
+	${SHAREDIR}/ModLinearSolver.o \
+	${SHAREDIR}/ModMpi.o \
+	ModTime.o
+
+divergence.o:\
+	ModSize.o \
+	ModGITM.o \
+	ModConstants.o
+
+calc_pressure.o:\
+	ModGITM.o \
+	ModPlanet.o \
+	ModConstants.o \
+	ModInputs.o
+
+calc_rates.o:\
+	ModGITM.o \
+	ModRates.o \
+	ModConstants.o \
+	ModPlanet.o \
+	ModInputs.o \
+	ModEUV.o \
+	ModSources.o
+
+calc_timestep.o:\
+	ModGITM.o \
+	ModInputs.o \
+	ModTime.o \
+	${SHAREDIR}/ModMpi.o
+
+exchange_messages_sphere.o:\
+	ModSphereInterface.o
+
+timing.o:\
+	ModTimingGITM.o \
+	${SHAREDIR}/ModMpi.o
+
+advance.o:\
+	ModConstants.o \
+	ModGITM.o \
+	ModTime.o \
+	ModEUV.o \
+	ModInputs.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o
+
+advance_vertical.o:\
+	ModGITM.o \
+	ModPlanet.o \
+	ModConstants.o \
+	ModSources.o \
+	ModInputs.o \
+	ModVertical.o
+
+advance_horizontal.o:\
+	ModConstants.o \
+	ModSize.o \
+	ModPlanet.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModSources.o \
+	ModLimiter.o
+
+set_vertical_bcs.o:\
+	ModSize.o \
+	ModPlanet.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModTime.o \
+	ModVertical.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o \
+	ModTides.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcUA/ModMsis90.f
+
+set_horizontal_bcs.o:\
+	ModSize.o \
+	ModPlanet.o \
+	ModInputs.o \
+	ModGITM.o
+
+output.o:\
+	ModGITM.o
+
+output_common.o:\
+	ModInputs.o \
+	ModSphereInterface.o \
+	ModSatellites.o \
+	ModGITM.o \
+	ModEUV.o \
+	ModTime.o \
+	ModSources.o \
+	ModUser.o \
+	ModElectrodynamics.o \
+	ModConstants.o
+
+logfile.o:\
+	ModGITM.o \
+	ModInputs.o \
+	ModTime.o \
+	${SHAREDIR}/ModMpi.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndices.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o \
+	${SHAREDIR}/ModUtilities.o
+
+calc_conduction.o:\
+	ModSize.o \
+	ModGITM.o \
+	ModConstants.o
+
+calc_physics.o:\
+	ModGITM.o \
+	ModTime.o \
+	ModConstants.o \
+	ModEUV.o \
+	ModPlanet.o \
+	ModInputs.o
+
+calc_avesza.o:\
+	ModGITM.o \
+	ModTime.o \
+	ModInputs.o \
+	ModEUV.o
+
+calc_euv.o:\
+	ModGITM.o \
+	ModEUV.o \
+	ModPlanet.o \
+	ModConstants.o \
+	ModInputs.o \
+	ModSources.o \
+	ModTime.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o
+
+calc_chemistry.o:\
+	ModSize.o \
+	ModGITM.o \
+	ModPlanet.o \
+	ModRates.o \
+	ModEUV.o \
+	ModSources.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModTime.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcUA/ModMsis90.f
+
+calc_ion_v.o:\
+	ModGITM.o \
+	ModInputs.o \
+	ModConstants.o
+
+chapman_new.o:\
+	ModGITM.o \
+	ModEUV.o \
+	ModPlanet.o \
+	ModConstants.o \
+	ModInputs.o
+
+stop_file.o:\
+	ModGITM.o \
+	ModTime.o \
+	ModInputs.o \
+	${SHAREDIR}/ModMpi.o
+
+read_inputs.o:\
+	ModGITM.o \
+	ModInputs.o \
+	${SHAREDIR}/ModMpi.o
+
+add_sources.o:\
+	ModGITM.o \
+	ModTime.o \
+	ModSources.o \
+	ModInputs.o \
+	ModUser.o
+
+calc_sources.o:\
+	ModInputs.o \
+	ModSources.o \
+	ModGITM.o
+
+apex.o:\
+	ModInputs.o
+
+write_output.o:\
+	ModTime.o \
+	ModInputs.o \
+	ModGITM.o
+
+gradient.o:\
+	ModSize.o \
+	ModGITM.o
+
+tides.o:\
+	ModGITM.o \
+	ModTime.o \
+	ModInputs.o \
+	ModTides.o \
+	ModConstants.o \
+	ModSize.o \
+	ModPlanet.o
+
+user.o:\
+	ModGITM.o \
+	ModInputs.o \
+	${SHAREDIR}/ModNumConst.o \
+	${SHAREDIR}/ModKind.o \
+	ModTime.o \
+	ModSources.o \
+	ModUser.o
+
+update_hwm_bcs.o:\
+	ModGITM.o \
+	ModTime.o \
+	ModInputs.o \
+	${SHAREDIR}/ModKind.o \
+	ModConstants.o
+
+calc_new_collisions.o:\
+	ModGITM.o \
+	ModConstants.o
+
+gedy_gatherfield.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/params.o \
+	ModGedy.o \
+	${SHAREDIR}/ModMpi.o \
+	ModGITM.o \
+	ModElectrodynamics.o \
+	ModSize.o \
+	ModInputs.o \
+	ModConstants.o
+
+advance_gedy.o:\
+	${SHAREDIR}/ModMpi.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModGedy.o \
+	ModTime.o
+
+gedy_get2dpoten.o:\
+	ModGITM.o \
+	ModGedy.o \
+	ModInputs.o
+
+gedy_mapfield.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/fieldline_s.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/params.o \
+	ModGedy.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/fieldline_p.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/readin.o
+
+gedy_spreadfield_new.o:\
+	ModGedy.o \
+	ModGITM.o \
+	${SHAREDIR}/ModMpi.o
+
+update_n2a.o:\
+	ModEUV.o \
+	ModGITM.o \
+	ModInputs.o \
+	ModNOChemistry.o \
+	ModPlanet.o \
+	ModTime.o
+
+calc_chemistry_new.o:\
+	ModSize.o \
+	ModGITM.o \
+	ModPlanet.o \
+	ModRates.o \
+	ModEUV.o \
+	ModSources.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModNOChemistry.o \
+	ModTime.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcUA/ModMsis90.f \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/DATAREAD/srcIndices/ModIndicesInterfaces.o
+
+calc_height_integral.o:\
+	ModGITM.o \
+	ModPlanet.o \
+	ModSources.o
+
+get_ampere_fac.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/fieldline_p.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/params.o \
+	ModAMPERE.o \
+	ModGITM.o \
+	ModConstants.o
+
+get_oim_fac.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/fieldline_p.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/params.o \
+	ModOIM.o \
+	ModGITM.o \
+	ModConstants.o
+
+run_amie.o:\
+	ModAMIE.o \
+	ModGITM.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EMPIRICAL/srcAEPM/aepm.o \
+	ModInputs.o
+
+get_sdam_aurora.o:\
+	ModSDAM.o \
+	ModGITM.o
+
+get_sdfm_fac.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/fieldline_p.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/params.o \
+	ModSDFM.o \
+	ModGITM.o \
+	ModConstants.o
+
+ModTime.o:\
+	${SHAREDIR}/ModKind.o
+
+ModPlanet.o:\
+	ModConstants.o \
+	ModSize.o \
+	ModTime.o
+
+ModGITM.o:\
+	ModSize.o \
+	ModPlanet.o
+
+ModSources.o:\
+	ModSize.o \
+	ModPlanet.o
+
+ModVertical.o:\
+	ModSize.o \
+	ModPlanet.o
+
+ModInputs.o:\
+	ModConstants.o \
+	ModPlanet.o \
+	${SHAREDIR}/ModIoUnit.o \
+	${SHAREDIR}/ModKind.o \
+	ModTime.o
+
+ModSphereInterface.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/srcSphereAB/AB_module.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/srcSphereAB/AB_COMM_module.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/srcSphereAB/AB_XFER_module.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/srcSphereAB/AB_SPH_module.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/srcSphereAB/AB_ERROR_module.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/srcSphereAB/AB_XFER_array_util.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/srcSphereAB/AB_XFER_1blk_util.o \
+	ModGITM.o \
+	ModConstants.o \
+	ModSize.o \
+	ModPlanet.o \
+	ModInputs.o
+
+ModRates.o:\
+	ModGITM.o
+
+ModEUV.o:\
+	ModGITM.o \
+	ModPlanet.o
+
+ModElectrodynamics.o:\
+	ModSize.o
+
+ModSatellites.o:\
+	ModInputs.o \
+	${SHAREDIR}/ModIoUnit.o
+
+ModLimiter.o:\
+	ModInputs.o
+
+ModTides.o:\
+	ModSize.o
+
+ModNewell.o:\
+	ModConstants.o \
+	ModSize.o \
+	ModGITM.o \
+	ModInputs.o
+
+ModMagTrace.o:\
+	ModGITM.o \
+	${SHAREDIR}/ModMpi.o \
+	ModElectrodynamics.o
+
+ModChemistry.o:\
+	ModSize.o \
+	ModGITM.o \
+	ModPlanet.o \
+	ModRates.o \
+	ModEUV.o \
+	ModInputs.o \
+	ModConstants.o \
+	ModSources.o
+
+ModGITMImplicit.o:\
+	ModChemistry.o \
+	ModGITM.o \
+	${SHAREDIR}/ModKind.o \
+	ModPlanet.o \
+	ModTime.o \
+	ModInputs.o
+
+ModUser.o:\
+	ModGITM.o
+
+ModGedy.o:\
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/fieldline_p.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/fieldline_s.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/fieldline_r.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/qd_grid.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/calc_coef.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/areas.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/calc_B.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/edynamicsout.o \
+	/home1/06793/hongyu_5/iono_lab/mentor/util/EDYNAMICS/ModFAC.o \
+	ModAMPERE.o \
+	ModOIM.o \
+	ModSDFM.o \
+	ModInputs.o
+
+ModAMPERE.o:\
+	ModTime.o
+
+ModOIM.o:\
+	ModTime.o
+
+ModAMIE.o:\
+	ModTime.o
+
+ModSDAM.o:\
+	ModTime.o
+
+ModSDFM.o:\
+	ModTime.o
+

@@ -107,6 +107,9 @@ real, allocatable :: SpeciesDensityOld(:,:,:,:,:)
 
   real, dimension(1:nLons, 1:nLats, 1:nAlts, 3) :: &
        IonDrag, Viscosity
+  !! similarly, define PresGrad & Corilis, yuhong, 01/10/2025
+  real, dimension(1:nLons, 1:nLats, 1:nAlts, 3) :: &
+       PresGrad, CoriolisF4
 
   real, dimension(1:nLons, 1:nLats, 1:nAlts, nSpecies) :: &
        VerticalIonDrag
@@ -175,8 +178,8 @@ real, allocatable :: SpeciesDensityOld(:,:,:,:,:)
   real :: d1_dir = 1., d2_dir = 1. 
 
   ! Height-integrated JH and TEC
-  real, dimension(nLons,nLats) :: HeightIntegratedJH, scTEC, on2ratio 
-
+  real, dimension(nLons,nLats) :: HeightIntegratedJH, scTEC, on2ratio
+  
 contains
   !=========================================================================
   subroutine init_mod_gitm

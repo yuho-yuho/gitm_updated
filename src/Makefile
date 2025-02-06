@@ -2,8 +2,7 @@ ABDIR   = ${UADIR}/srcSphereAB
 IODIR   = ${DATAREADINDICESDIR}
 GLDIR   = ${UADIR}/srcGlow
 
-LIB_NETCDF=/glade/u/apps/derecho/23.06/spack/opt/spack/netcdf/4.9.2/intel-oneapi-mpi/2021.8.0/oneapi/2023.0.0/pbyg/lib
-LIB_HDF5=/glade/u/apps/derecho/23.06/spack/opt/spack/hdf5/1.12.2/intel-oneapi-mpi/2021.8.0/oneapi/2023.0.0/s5ig/lib
+LIB_NETCDF=/opt/apps/intel19/netcdf/4.6.2/x86_64/lib
 
 SEARCH_EXTRA = -I${ABDIR} -I${IODIR} -I${EMPIRICALUADIR} -I${EMPIRICALIEDIR} \
 	-I${EDYNAMICSDIR} -I${EMPIRICALAEPMDIR} -I${EMPIRICALEPMDIR} \
@@ -144,8 +143,7 @@ GITM_general:
 		-L${LIBDIR} -lEMPIRICALIE -lEMPIRICALUA -lINDICES -lSHARE \
 		-lEDYNAMICS -lAEPM -lEPM -lEFVM \
 		-L$(LIB_NETCDF) -lnetcdf -lnetcdff \
-		-L$(LIB_HDF5) -lhdf5 \
-		-L${GLDIR} -lGLOW ${LBLAS} ${Lflag1} -qmkl
+		-L${GLDIR} -lGLOW ${LBLAS} ${Lflag1} -mkl
 
 GITM_for_Darwin:
 	rm -rf Tmp_; mkdir Tmp_
