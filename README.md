@@ -107,14 +107,13 @@ Copy & Paste the following content to your "standard_run" script:
 
 ```shell
 #!/bin/bash
-#SBATCH -J hongyu            # job name
+#SBATCH -J yourusername    # job name
 #SBATCH -o gitm.o%j        # output and error file name (%j expands to jobID)
 #SBATCH -N 2                # number of nodes requested
 #SBATCH -n 144               # total number of mpi tasks requested
 #SBATCH -p normal      # queue (partition) -- normal, development, etc.
 #SBATCH -t 00:10:00         # run time (hh:mm:ss) - 1.5 hours
 
-module load netcdf/4.6.2
 # run the executable named a.out                                                                    
 ibrun ./GITM.exe
 
