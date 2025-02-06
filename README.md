@@ -41,7 +41,7 @@ EMPIRICALEFVMDIR    = ${UADIR}/util/EMPIRICAL/srcEFVM
 ```
 
 Go to this Google Drive folder: https://drive.google.com/drive/folders/1xLMNRsTMPyqVM-TcP0lm4lwFOURQARow?usp=sharing
-Directly copy/replace Makefile, netcdf.mod and output_common.f90 to your /gitm_updated/src/ folder
+Directly copy/replace Makefile, netcdf.mod, ModGITM.f90 and output_common.f90 to your /gitm_updated/src/ folder
 
 5\. Compile your GITM codes
 
