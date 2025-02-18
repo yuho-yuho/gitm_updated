@@ -114,6 +114,7 @@ Copy & Paste the following content to your "standard_run" script:
 #SBATCH -p normal      # queue (partition) -- normal, development, etc.
 #SBATCH -t 00:10:00         # run time (hh:mm:ss) - 1.5 hours
 
+module load netcdf/4.6.2
 # run the executable named a.out                                                                    
 ibrun ./GITM.exe
 
